@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"gimg/handlers"
+	"gimg/pkg"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -15,21 +16,26 @@ import (
 
 var (
 	port string
+	savePath string
 )
 
-func init()  {
+func init() {
 	flag.StringVar(&port, "port", "8080", "port of server listen to")
+	flag.StringVar(&savePath, "save_path", "./", "path of save to")
 }
 
 func main() {
 	router := gin.Default()
 
+	router.MaxMultipartMemory = 100 << 20
+	ctx := pkg.CreateCtx(savePath)
+
 	//register handlers
-	router.GET("/", handlers.GetHandler)
-	router.POST("upload", handlers.UploadHandler)
+	router.GET("/", handlers.GetHandler(ctx))
+	router.POST("upload", handlers.UploadHandler(ctx))
 
 	srv := &http.Server{
-		Addr: ":" + port,
+		Addr:    ":" + port,
 		Handler: router,
 	}
 
@@ -44,10 +50,10 @@ func main() {
 	log.Println("Shutting down server...")
 
 	//server forced shutting down if context timeout
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctxTimeout, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	if err := srv.Shutdown(ctx); err != nil {
+	if err := srv.Shutdown(ctxTimeout); err != nil {
 		log.Fatal("Server forced to shutdown:", err)
 	}
 
