@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"crypto/md5"
+	"fmt"
 	"io"
 	"mime/multipart"
 )
@@ -14,5 +15,5 @@ func CalcMd5(file multipart.File) (string, error) {
 		return "", err
 	}
 
-	return string(h.Sum(nil)), nil
+	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
