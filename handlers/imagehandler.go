@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"gimg/pkg"
 	"github.com/gin-gonic/gin"
 )
@@ -19,6 +20,7 @@ func UploadHandler(ctx *pkg.Ctx) func(c *gin.Context) {
 
 		if err != nil {
 			pkg.Fail(c, "Parse argument error")
+			fmt.Println(err)
 			return
 		}
 
@@ -29,7 +31,8 @@ func UploadHandler(ctx *pkg.Ctx) func(c *gin.Context) {
 		}
 		defer fObj.Close()
 
-		md5, _ := pkg.CalcMd5FromFile(fObj)
+		md5, _ := pkg.CalcMd5(fObj)
+		fmt.Println(md5)
 		err = ctx.SaveFile(md5, fObj)
 		if err != nil {
 			pkg.Fail(c, "Save file error")

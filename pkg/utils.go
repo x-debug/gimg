@@ -6,7 +6,7 @@ import (
 	"mime/multipart"
 )
 
-func CalcMd5FromFile(file multipart.File) (string, error) {
+func CalcMd5(file multipart.File) (string, error) {
 	h := md5.New()
 	_, err := io.Copy(h, file)
 

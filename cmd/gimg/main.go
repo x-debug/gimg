@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	port string
+	port     string
 	savePath string
 )
 
@@ -32,7 +32,8 @@ func main() {
 
 	//register handlers
 	router.GET("/", handlers.GetHandler(ctx))
-	router.POST("upload", handlers.UploadHandler(ctx))
+	router.POST("/upload", handlers.UploadHandler(ctx))
+	router.StaticFile("/demo", "./examples/demo.html")
 
 	srv := &http.Server{
 		Addr:    ":" + port,
