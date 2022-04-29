@@ -21,7 +21,7 @@ var (
 
 func init() {
 	flag.StringVar(&port, "port", "8080", "port of server listen to")
-	flag.StringVar(&savePath, "save_path", "./", "path of save to")
+	flag.StringVar(&savePath, "save_path", "./images", "path of save to")
 }
 
 func main() {
