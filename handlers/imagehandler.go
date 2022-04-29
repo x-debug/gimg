@@ -3,12 +3,26 @@ package handlers
 import (
 	"gimg/pkg"
 	"github.com/gin-gonic/gin"
+	"io"
 )
 
 // GetHandler Get image
 func GetHandler(ctx *pkg.Ctx) func(c *gin.Context) {
 	return func(c *gin.Context) {
+		hash := c.Param("hash")
+		rFile, closef, err := ctx.ReadFile(hash)
+		defer closef()
+		
+		if err != nil {
+			pkg.Fail(c, "Read file error")
+			return
+		}
 
+		_, err = io.Copy(c.Writer, rFile)
+		if err != nil {
+			pkg.Fail(c, "Copy file error")
+			return
+		}
 	}
 }
 
