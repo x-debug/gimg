@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"fmt"
+	"gimg/processor"
 	"io"
 	"mime/multipart"
 	"os"
@@ -9,13 +10,14 @@ import (
 
 type Ctx struct {
 	savePath string
+	Engine   processor.Engine
 }
 
-func CreateCtx(path string) *Ctx {
-	return &Ctx{savePath: path}
+func CreateCtx(path string, engine processor.Engine) *Ctx {
+	return &Ctx{savePath: path, Engine: engine}
 }
 
-func (fc *Ctx) ReadFile(fingerprint string) (io.Reader, func(), error) {
+func (fc *Ctx) ReadFile(fingerprint string) (*os.File, func(), error) {
 	filename := fmt.Sprintf("%s/%s", fc.savePath, fingerprint)
 	file, err := os.Open(filename)
 	if err != nil {
@@ -25,6 +27,10 @@ func (fc *Ctx) ReadFile(fingerprint string) (io.Reader, func(), error) {
 	return file, func() {
 		_ = file.Close()
 	}, nil
+}
+
+func (fc *Ctx) File(filename string) string {
+	return fmt.Sprintf("%s/%s", fc.savePath, filename)
 }
 
 //SaveFile save file to path of fingerprint

@@ -5,6 +5,7 @@ import (
 	"flag"
 	"gimg/handlers"
 	"gimg/pkg"
+	"gimg/processor"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -17,18 +18,31 @@ import (
 var (
 	port     string
 	savePath string
+	engineName string
+	engine     processor.Engine
 )
 
 func init() {
 	flag.StringVar(&port, "port", "8080", "port of server listen to")
 	flag.StringVar(&savePath, "save_path", "./images", "path of save to")
+	flag.StringVar(&engineName, "processor", "imagick", "name of processor")
+}
+
+func initProcessor() {
+	if engineName == "imagick" {
+		engine = processor.NewEngine(processor.Imagick)
+	}
+	engine.Initialize()
 }
 
 func main() {
-	router := gin.Default()
+	flag.Parse()
+	initProcessor()
+	defer engine.Terminate()
 
+	router := gin.Default()
 	router.MaxMultipartMemory = 100 << 20
-	ctx := pkg.CreateCtx(savePath)
+	ctx := pkg.CreateCtx(savePath, engine)
 
 	//register handlers
 	router.POST("/upload", handlers.UploadHandler(ctx))
