@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"fmt"
+	"gimg/config"
 	"gimg/processor"
 	"io"
 	"mime/multipart"
@@ -9,16 +10,16 @@ import (
 )
 
 type Ctx struct {
-	savePath string
-	Engine   processor.Engine
+	conf   *config.Config
+	Engine processor.Engine
 }
 
-func CreateCtx(path string, engine processor.Engine) *Ctx {
-	return &Ctx{savePath: path, Engine: engine}
+func CreateCtx(conf *config.Config, engine processor.Engine) *Ctx {
+	return &Ctx{conf: conf, Engine: engine}
 }
 
 func (fc *Ctx) ReadFile(fingerprint string) (*os.File, func(), error) {
-	filename := fmt.Sprintf("%s/%s", fc.savePath, fingerprint)
+	filename := fmt.Sprintf("%s/%s", fc.conf.Engine.SavePath, fingerprint)
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, nil, err
@@ -30,12 +31,12 @@ func (fc *Ctx) ReadFile(fingerprint string) (*os.File, func(), error) {
 }
 
 func (fc *Ctx) File(filename string) string {
-	return fmt.Sprintf("%s/%s", fc.savePath, filename)
+	return fmt.Sprintf("%s/%s", fc.conf.Engine.SavePath, filename)
 }
 
 //SaveFile save file to path of fingerprint
 func (fc *Ctx) SaveFile(fingerprint string, file multipart.File) error {
-	filename := fmt.Sprintf("%s/%s", fc.savePath, fingerprint)
+	filename := fmt.Sprintf("%s/%s", fc.conf.Engine.SavePath, fingerprint)
 	dstFile, err := os.Create(filename)
 	if err != nil {
 		return err

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"gimg/config"
 	"gimg/handlers"
 	"gimg/pkg"
 	"gimg/processor"
@@ -11,46 +12,71 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 )
 
 var (
-	port     string
-	savePath string
-	engineName string
-	engine     processor.Engine
+	port      int
+	savePath  string
+	configure string
+	engine    processor.Engine
 )
 
 func init() {
-	flag.StringVar(&port, "port", "8080", "port of server listen to")
-	flag.StringVar(&savePath, "save_path", "./images", "path of save to")
-	flag.StringVar(&engineName, "processor", "imagick", "name of processor")
+	flag.IntVar(&port, "port", 0, "port of server listen to")
+	flag.StringVar(&savePath, "save_path", "", "path of save to")
+	flag.StringVar(&configure, "conf", "./gimg.yml", "path of configure")
 }
 
-func initProcessor() {
-	if engineName == "imagick" {
-		engine = processor.NewEngine(processor.Imagick)
-	}
+func initProcessor(conf *config.Config) {
+	engine = processor.NewEngine(processor.Imagick)
 	engine.Initialize()
+}
+
+func overrideConf(conf *config.Config) *config.Config {
+	if port != 0 {
+		conf.Port = port
+	}
+
+	if savePath != "" {
+		conf.Engine.SavePath = savePath
+	}
+
+	return conf
 }
 
 func main() {
 	flag.Parse()
-	initProcessor()
+	conf, err := config.Load(configure)
+	if err != nil {
+		log.Fatal("Read configure file error :", err)
+	}
+	conf = overrideConf(conf)
+	initProcessor(conf)
 	defer engine.Terminate()
+
+	//Set run mode
+	log.Println("Run on", conf.Debug)
+	if conf.Debug {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
 	router := gin.Default()
 	router.MaxMultipartMemory = 100 << 20
-	ctx := pkg.CreateCtx(savePath, engine)
+	ctx := pkg.CreateCtx(conf, engine)
 
 	//register handlers
 	router.POST("/upload", handlers.UploadHandler(ctx))
 	router.StaticFile("/demo", "./examples/demo.html")
 	router.GET("/:hash", handlers.GetHandler(ctx))
 
+	log.Printf("Http listen port:%d\n", conf.Port)
 	srv := &http.Server{
-		Addr:    ":" + port,
+		Addr:    ":" + strconv.Itoa(conf.Port),
 		Handler: router,
 	}
 
