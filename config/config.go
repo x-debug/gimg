@@ -1,6 +1,9 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"gimg/logger"
+	"github.com/spf13/viper"
+)
 
 type EngineConf struct {
 	SavePath string `mapstructure:"save_path"`
@@ -11,6 +14,7 @@ type Config struct {
 	Debug  bool
 	Port   int
 	Engine *EngineConf
+	Logger *logger.Config
 }
 
 func defaultConfig() *Config {
@@ -21,6 +25,7 @@ func defaultConfig() *Config {
 			Name:     "imagick",
 			SavePath: "./images",
 		},
+		Logger: &logger.Config{Level: logger.DevelopmentLevel},
 	}
 }
 
@@ -31,6 +36,7 @@ func Load(filename string) (*Config, error) {
 	viper.SetDefault("debug", defaultConfig.Debug)
 	viper.SetDefault("port", defaultConfig.Port)
 	viper.SetDefault("engine", defaultConfig.Engine)
+	viper.SetDefault("logger", defaultConfig.Logger)
 	viper.SetConfigFile(filename)
 	err := viper.ReadInConfig()
 	if err != nil {

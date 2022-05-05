@@ -1,34 +1,13 @@
 package handlers
 
 import (
-	"bytes"
 	"fmt"
+	lg "gimg/logger"
 	"gimg/pkg"
 	"github.com/gin-gonic/gin"
-	"io"
-	"log"
 	"os"
 	"strconv"
 )
-
-func renderFile(c *gin.Context, file *os.File) {
-	//set file begin of position
-	_, _ = file.Seek(0, io.SeekStart)
-
-	wBuffer := &bytes.Buffer{}
-	_, err := io.Copy(wBuffer, file)
-	if err != nil {
-		pkg.Fail(c, "Copy buffer error")
-		return
-	}
-
-	nBytes, err := c.Writer.Write(wBuffer.Bytes())
-	log.Printf("Write buffer %d bytes\n", nBytes)
-	if err != nil {
-		pkg.Fail(c, "Write buffer error")
-		return
-	}
-}
 
 // GetHandler Get image
 func GetHandler(ctx *pkg.Ctx) func(c *gin.Context) {
@@ -36,28 +15,25 @@ func GetHandler(ctx *pkg.Ctx) func(c *gin.Context) {
 		hash := c.Param("hash")
 		width, _ := strconv.Atoi(c.DefaultQuery("w", "0"))
 		height, _ := strconv.Atoi(c.DefaultQuery("h", "0"))
-		log.Printf("Params hash: %s, width: %d, height: %d\n", hash, width, height)
+		ctx.Logger.Info("Params hash", lg.Int("Width", width), lg.Int("Height", height))
 
 		fileHash := fmt.Sprintf("%s_w%d_h%d", hash, width, height)
 		//Read file from local fs or remote file store
 		rFile, closef, err := ctx.ReadFile(fileHash)
 		defer func(f func()) {
 			if f != nil {
-				log.Printf("Close fd: %s\n", fileHash)
 				closef()
 			}
 		}(closef)
 
 		if err == nil {
-			log.Printf("Cache hit, hash: %s\n", fileHash)
-			renderFile(c, rFile)
+			ctx.RenderFile(c, rFile)
 			return
 		}
 
 		rFile, closef, err = ctx.ReadFile(hash)
 		defer func(f func()) {
 			if f != nil {
-				log.Printf("Close fd: %s\n", hash)
 				closef()
 			}
 		}(closef)
@@ -94,7 +70,7 @@ func GetHandler(ctx *pkg.Ctx) func(c *gin.Context) {
 			return
 		}
 
-		renderFile(c, wfile)
+		ctx.RenderFile(c, wfile)
 	}
 }
 

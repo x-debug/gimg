@@ -1,9 +1,13 @@
 package pkg
 
 import (
+	"bytes"
 	"fmt"
 	"gimg/config"
+	"gimg/logger"
+	lg "gimg/logger"
 	"gimg/processor"
+	"github.com/gin-gonic/gin"
 	"io"
 	"mime/multipart"
 	"os"
@@ -12,10 +16,30 @@ import (
 type Ctx struct {
 	conf   *config.Config
 	Engine processor.Engine
+	Logger logger.Logger
 }
 
-func CreateCtx(conf *config.Config, engine processor.Engine) *Ctx {
-	return &Ctx{conf: conf, Engine: engine}
+func CreateCtx(conf *config.Config, logger logger.Logger, engine processor.Engine) *Ctx {
+	return &Ctx{conf: conf, Engine: engine, Logger: logger}
+}
+
+func (fc *Ctx) RenderFile(c *gin.Context, file *os.File) {
+	//set file begin of position
+	_, _ = file.Seek(0, io.SeekStart)
+
+	wBuffer := &bytes.Buffer{}
+	_, err := io.Copy(wBuffer, file)
+	if err != nil {
+		Fail(c, "Copy buffer error")
+		return
+	}
+
+	nBytes, err := c.Writer.Write(wBuffer.Bytes())
+	fc.Logger.Info("Write buffer", lg.Int("Bytes", nBytes))
+	if err != nil {
+		Fail(c, "Write buffer error")
+		return
+	}
 }
 
 func (fc *Ctx) ReadFile(fingerprint string) (*os.File, func(), error) {

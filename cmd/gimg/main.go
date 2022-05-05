@@ -5,6 +5,7 @@ import (
 	"flag"
 	"gimg/config"
 	"gimg/handlers"
+	lg "gimg/logger"
 	"gimg/pkg"
 	"gimg/processor"
 	"github.com/gin-gonic/gin"
@@ -54,49 +55,55 @@ func main() {
 		log.Fatal("Read configure file error :", err)
 	}
 	conf = overrideConf(conf)
+
+	//Init logger
+	logger := lg.New(conf.Logger)
 	initProcessor(conf)
 	defer engine.Terminate()
 
 	//Set run mode
-	log.Println("Run on", conf.Debug)
 	if conf.Debug {
+		logger.Info("Run ", lg.String("Mode", gin.DebugMode))
 		gin.SetMode(gin.DebugMode)
 	} else {
+		logger.Info("Run ", lg.String("Mode", gin.ReleaseMode))
 		gin.SetMode(gin.ReleaseMode)
 	}
 
 	router := gin.Default()
 	router.MaxMultipartMemory = 100 << 20
-	ctx := pkg.CreateCtx(conf, engine)
+	ctx := pkg.CreateCtx(conf, logger, engine)
 
-	//register handlers
+	//Register handlers
 	router.POST("/upload", handlers.UploadHandler(ctx))
 	router.StaticFile("/demo", "./examples/demo.html")
 	router.GET("/:hash", handlers.GetHandler(ctx))
 
-	log.Printf("Http listen port:%d\n", conf.Port)
+	logger.Info("Http listen ", lg.Int("Port", conf.Port))
 	srv := &http.Server{
 		Addr:    ":" + strconv.Itoa(conf.Port),
 		Handler: router,
 	}
 
+	//Start http server
 	go func() {
-		log.Println(srv.ListenAndServe())
+		err = srv.ListenAndServe()
+		logger.Error("Serve http ", lg.Error(err))
 	}()
 
-	//create signal wait until server exit
+	//Create signal wait until server exit
 	quit := make(chan os.Signal)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	log.Println("Shutting down server...")
+	logger.Info("Shutting down server")
 
-	//server forced shutting down if context timeout
+	//Server forced shutting down if context timeout
 	ctxTimeout, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	if err := srv.Shutdown(ctxTimeout); err != nil {
-		log.Fatal("Server forced to shutdown:", err)
+		logger.Panic("Server forced to shutdown", lg.Error(err))
 	}
-
-	log.Println("Server exiting")
+	
+	logger.Info("Server exited")
 }
