@@ -27,6 +27,10 @@ func newImagickProcessor(fs fs.FileSystem, logger logger.Logger, hash string) Pr
 	return self
 }
 
+func (p *ImagickProcessor) GetLogger() logger.Logger {
+	return p.logger
+}
+
 func (p *ImagickProcessor) Load(file *os.File) error {
 	buffer := &bytes.Buffer{}
 	_, err := io.Copy(buffer, file)
@@ -111,7 +115,12 @@ func (p *ImagickProcessor) Fit(file *os.File) error {
 	return nil
 }
 
-//Resize return new image object with width and height
+//Resize return new sized image object with width and height
 func (p *ImagickProcessor) Resize(width, height uint) error {
 	return p.mw.ResizeImage(width, height, imagick.FILTER_LANCZOS)
+}
+
+//Thumbnail return new thumbnail image object with width and height
+func (p *ImagickProcessor) Thumbnail(width, height uint) error {
+	return p.mw.ThumbnailImage(width, height)
 }

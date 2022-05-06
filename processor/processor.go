@@ -37,11 +37,17 @@ type FileW interface {
 type ImageOp interface {
 	Load(file *os.File) error
 	Resize(width, height uint) error
+	Thumbnail(width, height uint) error
+}
+
+type Loggable interface {
+	GetLogger() logger.Logger
 }
 
 type Processor interface {
 	FileW
 	ImageOp
+	Loggable
 
 	SetParam(param string) Processor
 	Destroy()

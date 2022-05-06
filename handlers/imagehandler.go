@@ -38,6 +38,7 @@ func GetHandler(ctx *pkg.Ctx) func(c *gin.Context) {
 			}
 		}(closef)
 		if err == nil {
+			ctx.Logger.Info("Cached file hit, read from cache ", logger.String("Filename", rFile.Name()))
 			ctx.RenderFile(c, rFile)
 			return
 		}
