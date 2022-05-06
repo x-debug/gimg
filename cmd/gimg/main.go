@@ -75,6 +75,7 @@ func main() {
 	ctx := pkg.CreateCtx(conf, logger, engine)
 
 	//Register handlers
+	router.StaticFile("/favicon.ico", "./resources/favicon-16x16.png")
 	router.POST("/upload", handlers.UploadHandler(ctx))
 	router.StaticFile("/demo", "./examples/demo.html")
 	router.GET("/:hash", handlers.GetHandler(ctx))

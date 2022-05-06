@@ -66,7 +66,6 @@ func (fc *Ctx) SaveFile(fingerprint string, file multipart.File) error {
 		return err
 	}
 
-	//_, err = io.Copy(dstFile, file)
 	buffer := make([]byte, 256)
 	_, err = file.Seek(0, io.SeekStart)
 	if err != nil {
@@ -75,7 +74,6 @@ func (fc *Ctx) SaveFile(fingerprint string, file multipart.File) error {
 
 	for {
 		_, err := file.Read(buffer)
-		//log.Printf("read %d bytes, err: %s\n", nBytes, err)
 		if err == io.EOF { //file reached EOF, stop reading
 			break
 		}

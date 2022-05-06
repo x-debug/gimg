@@ -1,7 +1,8 @@
 package processor
 
 import (
-	"io"
+	"gimg/fs"
+	"gimg/logger"
 	"os"
 )
 
@@ -16,7 +17,7 @@ type Engine interface {
 	Terminate()
 
 	//NewProcessor build a new processor
-	NewProcessor(reader io.Reader) (Processor, error)
+	NewProcessor(fs fs.FileSystem, logger logger.Logger, originalHash string) Processor
 }
 
 //NewEngine build processor with type
@@ -33,9 +34,22 @@ type FileW interface {
 	WriteToFile(fObj *os.File) error
 }
 
+type ImageOp interface {
+	Load(file *os.File) error
+	Resize(width, height uint) error
+}
+
 type Processor interface {
 	FileW
+	ImageOp
 
-	Resize(width, height uint) error
+	SetParam(param string) Processor
 	Destroy()
+	AddAction(action Action)
+	ActionFinger() string
+	LenOfAction() int
+	ActionOnlyNop() bool
+	ReadCached() (*os.File, func(), error)
+	Read() (*os.File, func(), error)
+	Fit(file *os.File) error
 }

@@ -2,55 +2,67 @@ package handlers
 
 import (
 	"fmt"
-	lg "gimg/logger"
+	"gimg/logger"
 	"gimg/pkg"
+	pl "gimg/processor"
 	"github.com/gin-gonic/gin"
 	"os"
-	"strconv"
 )
 
 // GetHandler Get image
 func GetHandler(ctx *pkg.Ctx) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		hash := c.Param("hash")
-		width, _ := strconv.Atoi(c.DefaultQuery("w", "0"))
-		height, _ := strconv.Atoi(c.DefaultQuery("h", "0"))
-		ctx.Logger.Info("Params hash", lg.Int("Width", width), lg.Int("Height", height))
+		op := c.DefaultQuery("op", "")
 
-		fileHash := fmt.Sprintf("%s_w%d_h%d", hash, width, height)
-		//Read file from local fs or remote file store
-		rFile, closef, err := ctx.ReadFile(fileHash)
+		ctx.Logger.Info("Raw query ", logger.String("Query", c.Request.URL.RawQuery), logger.String("Op", op))
+		processor := ctx.Engine.NewProcessor(ctx, ctx.Logger, hash).SetParam(c.Request.URL.RawQuery)
+		defer processor.Destroy()
+
+		if op == "resize" {
+			processor.AddAction(pl.NewAction(pl.Resize))
+		} else if op == "thumbnail" {
+			processor.AddAction(pl.NewAction(pl.Thumbnail))
+		} else if op == "flip" {
+			processor.AddAction(pl.NewAction(pl.Flip))
+		} else if op == "rotate" {
+			processor.AddAction(pl.NewAction(pl.Rotate))
+		} else {
+			processor.AddAction(pl.NewAction(pl.Nop))
+		}
+
+		rFile, closef, err := processor.ReadCached()
 		defer func(f func()) {
 			if f != nil {
 				closef()
 			}
 		}(closef)
-
 		if err == nil {
 			ctx.RenderFile(c, rFile)
 			return
 		}
 
-		rFile, closef, err = ctx.ReadFile(hash)
+		rFile, closef, err = processor.Read()
 		defer func(f func()) {
 			if f != nil {
 				closef()
 			}
 		}(closef)
-
-		processor, err := ctx.Engine.NewProcessor(rFile)
 		if err != nil {
-			pkg.Fail(c, "Read file error")
+			pkg.Fail(c, fmt.Sprintf("Read original image file error, %s", err.Error()))
 			return
 		}
-		defer processor.Destroy()
 
-		if width > 0 && height > 0 {
-			err = processor.Resize(uint(width), uint(height))
-			if err != nil {
-				pkg.Fail(c, fmt.Sprintf("Resize image file error, %s", err.Error()))
-				return
-			}
+		if processor.ActionOnlyNop() {
+			ctx.RenderFile(c, rFile)
+			return
+		}
+
+		ctx.Logger.Info("Processor fit image ", logger.String("FileName", rFile.Name()))
+		err = processor.Fit(rFile)
+		if err != nil {
+			pkg.Fail(c, fmt.Sprintf("Fit image file error, %s", err.Error()))
+			return
 		}
 
 		//write file object into disk
@@ -63,7 +75,7 @@ func GetHandler(ctx *pkg.Ctx) func(c *gin.Context) {
 			return
 		}
 
-		filename := ctx.File(fileHash)
+		filename := ctx.File(processor.ActionFinger())
 		err = os.Rename(wfile.Name(), filename)
 		if err != nil {
 			pkg.Fail(c, "Rename file error")

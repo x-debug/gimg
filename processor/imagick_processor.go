@@ -2,29 +2,61 @@ package processor
 
 import (
 	"bytes"
+	"fmt"
+	"gimg/fs"
+	"gimg/logger"
 	"gopkg.in/gographics/imagick.v3/imagick"
 	"io"
 	"os"
+	"strings"
 )
 
 type ImagickProcessor struct {
-	mw *imagick.MagickWand
+	mw       *imagick.MagickWand
+	params   Params
+	fileHash string
+	actions  []Action
+	fs       fs.FileSystem
+	logger   logger.Logger
 }
 
-func newImagickProcessor(reader io.Reader) (Processor, error) {
-	buffer := &bytes.Buffer{}
-	_, err := io.Copy(buffer, reader)
-	if err != nil {
-		return nil, err
-	}
-
+func newImagickProcessor(fs fs.FileSystem, logger logger.Logger, hash string) Processor {
 	mw := imagick.NewMagickWand()
-	err = mw.ReadImageBlob(buffer.Bytes())
+
+	self := &ImagickProcessor{mw: mw, fs: fs, fileHash: hash, logger: logger, actions: make([]Action, 0)}
+	return self
+}
+
+func (p *ImagickProcessor) Load(file *os.File) error {
+	buffer := &bytes.Buffer{}
+	_, err := io.Copy(buffer, file)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return &ImagickProcessor{mw: mw}, nil
+	err = p.mw.ReadImageBlob(buffer.Bytes())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (p *ImagickProcessor) SetParam(param string) Processor {
+	p.params = NewParams(param)
+	return p
+}
+
+func (p *ImagickProcessor) AddAction(action Action) {
+	p.actions = append(p.actions, action)
+}
+
+func (p *ImagickProcessor) LenOfAction() int {
+	return len(p.actions)
+}
+
+func (p *ImagickProcessor) ActionOnlyNop() bool {
+	return len(p.actions) == 0 || (len(p.actions) == 1 && p.actions[0].Name() == "nop")
 }
 
 func (p *ImagickProcessor) WriteTo(filename string) error {
@@ -41,6 +73,45 @@ func (p *ImagickProcessor) Destroy() {
 	}
 }
 
+func (p *ImagickProcessor) ActionFinger() string {
+	joinParams := make([]string, 0)
+	for _, param := range p.params {
+		joinParams = append(joinParams, param.Key+param.Value)
+	}
+	newHash := fmt.Sprintf("%s_%s", p.fileHash, strings.Join(joinParams, "_"))
+	return newHash
+}
+
+//ReadCached return cached file object
+func (p *ImagickProcessor) ReadCached() (*os.File, func(), error) {
+	newHash := p.ActionFinger()
+	return p.fs.ReadFile(newHash)
+}
+
+//Read return file object
+func (p *ImagickProcessor) Read() (*os.File, func(), error) {
+	return p.fs.ReadFile(p.fileHash)
+}
+
+//Fit process image object with actions
+func (p *ImagickProcessor) Fit(file *os.File) error {
+	err := p.Load(file)
+	if err != nil {
+		return err
+	}
+
+	for _, action := range p.actions {
+		action.SetParams(p.params)
+		err = action.Do(p)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+//Resize return new image object with width and height
 func (p *ImagickProcessor) Resize(width, height uint) error {
 	return p.mw.ResizeImage(width, height, imagick.FILTER_LANCZOS)
 }
