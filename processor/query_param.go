@@ -47,6 +47,34 @@ func (ps Params) GetInt(name string, defaultValue int) int {
 	return intVa
 }
 
+func (ps Params) GetFloat64(name string, defaultValue float64) float64 {
+	va, ok := ps.Get(name)
+	if !ok {
+		return defaultValue
+	}
+
+	f64, err := strconv.ParseFloat(va, 64)
+	if err != nil {
+		return defaultValue
+	}
+
+	return f64
+}
+
+func (ps Params) GetFloat32(name string, defaultValue float32) float32 {
+	va, ok := ps.Get(name)
+	if !ok {
+		return defaultValue
+	}
+
+	f32, err := strconv.ParseFloat(va, 32)
+	if err != nil {
+		return defaultValue
+	}
+
+	return float32(f32)
+}
+
 //GetString return string value or default value
 func (ps Params) GetString(name string, defaultValue string) string {
 	va, ok := ps.Get(name)

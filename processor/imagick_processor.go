@@ -124,3 +124,7 @@ func (p *ImagickProcessor) Resize(width, height uint) error {
 func (p *ImagickProcessor) Thumbnail(width, height uint) error {
 	return p.mw.ThumbnailImage(width, height)
 }
+
+func (p *ImagickProcessor) Rotate(deg float64) error {
+	return p.mw.RotateImage(imagick.NewPixelWand(), deg)
+}

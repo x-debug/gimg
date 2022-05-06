@@ -76,11 +76,30 @@ func (ta *ThumbnailAction) Do(p Processor) error {
 	return p.Thumbnail(uint(ta.width), uint(ta.height))
 }
 
+//RotateAction can rotate image file
+type RotateAction struct {
+	deg float64
+}
+
+func (ra *RotateAction) SetParams(params Params) {
+	ra.deg = params.GetFloat64("deg", 0.0)
+}
+
+func (ra *RotateAction) Name() string {
+	return "rotate"
+}
+
+func (ra *RotateAction) Do(p Processor) error {
+	return p.Rotate(ra.deg)
+}
+
 func NewAction(typ int) Action {
 	if typ == Resize {
 		return &ResizeAction{}
 	} else if typ == Thumbnail {
 		return &ThumbnailAction{}
+	} else if typ == Rotate {
+		return &RotateAction{}
 	}
 
 	return &NopAction{}

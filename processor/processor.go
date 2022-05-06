@@ -38,6 +38,7 @@ type ImageOp interface {
 	Load(file *os.File) error
 	Resize(width, height uint) error
 	Thumbnail(width, height uint) error
+	Rotate(deg float64) error
 }
 
 type Loggable interface {
