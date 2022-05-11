@@ -1,6 +1,7 @@
 package processor
 
 import (
+	"gimg/config"
 	"gimg/fs"
 	"gimg/logger"
 	"os"
@@ -17,13 +18,15 @@ type Engine interface {
 	Terminate()
 
 	//NewProcessor build a new processor
-	NewProcessor(fs fs.FileSystem, logger logger.Logger, originalHash string) Processor
+	NewProcessor(fs fs.FileSystem, logger logger.Logger, conf *config.Config, originalHash string) Processor
+
+	GetConfig() *config.EngineConf
 }
 
 //NewEngine build processor with type
-func NewEngine(typ int) Engine {
+func NewEngine(typ int, config *config.EngineConf) Engine {
 	if typ == Imagick {
-		return &ImagickEngine{}
+		return &ImagickEngine{cfg: config}
 	}
 
 	return nil
@@ -32,13 +35,6 @@ func NewEngine(typ int) Engine {
 type FileW interface {
 	WriteTo(filename string) error
 	WriteToFile(fObj *os.File) error
-}
-
-type ImageOp interface {
-	Load(file *os.File) error
-	Resize(width, height uint) error
-	Thumbnail(width, height uint) error
-	Rotate(deg float64) error
 }
 
 type Loggable interface {
@@ -50,7 +46,9 @@ type Processor interface {
 	ImageOp
 	Loggable
 
+	Load(file *os.File) error
 	SetParam(param string) Processor
+	GetActionConf() *config.ActionConf
 	Destroy()
 	AddAction(action Action)
 	ActionFinger() string

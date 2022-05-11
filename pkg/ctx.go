@@ -14,13 +14,13 @@ import (
 )
 
 type Ctx struct {
-	conf   *config.Config
+	Conf   *config.Config
 	Engine processor.Engine
 	Logger logger.Logger
 }
 
 func CreateCtx(conf *config.Config, logger logger.Logger, engine processor.Engine) *Ctx {
-	return &Ctx{conf: conf, Engine: engine, Logger: logger}
+	return &Ctx{Conf: conf, Engine: engine, Logger: logger}
 }
 
 func (fc *Ctx) RenderFile(c *gin.Context, file *os.File) {
@@ -43,7 +43,7 @@ func (fc *Ctx) RenderFile(c *gin.Context, file *os.File) {
 }
 
 func (fc *Ctx) ReadFile(fingerprint string) (*os.File, func(), error) {
-	filename := fmt.Sprintf("%s/%s", fc.conf.Engine.SavePath, fingerprint)
+	filename := fmt.Sprintf("%s/%s", fc.Conf.Engine.SavePath, fingerprint)
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, nil, err
@@ -55,12 +55,12 @@ func (fc *Ctx) ReadFile(fingerprint string) (*os.File, func(), error) {
 }
 
 func (fc *Ctx) File(filename string) string {
-	return fmt.Sprintf("%s/%s", fc.conf.Engine.SavePath, filename)
+	return fmt.Sprintf("%s/%s", fc.Conf.Engine.SavePath, filename)
 }
 
 //SaveFile save file to path of fingerprint
 func (fc *Ctx) SaveFile(fingerprint string, file multipart.File) error {
-	filename := fmt.Sprintf("%s/%s", fc.conf.Engine.SavePath, fingerprint)
+	filename := fmt.Sprintf("%s/%s", fc.Conf.Engine.SavePath, fingerprint)
 	dstFile, err := os.Create(filename)
 	if err != nil {
 		return err

@@ -3,3 +3,5 @@ port: 8888
 engine:
   name: imagick
   save_path: ./images
+lua:
+  load_path: ./scripts

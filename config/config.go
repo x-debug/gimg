@@ -10,11 +10,16 @@ type EngineConf struct {
 	Name     string
 }
 
+type ActionConf struct {
+	LoadScriptPath string `mapstructure:"load_path"`
+}
+
 type Config struct {
 	Debug  bool
 	Port   int
 	Engine *EngineConf
 	Logger *logger.Config
+	Action *ActionConf
 }
 
 func defaultConfig() *Config {
@@ -24,6 +29,9 @@ func defaultConfig() *Config {
 		Engine: &EngineConf{
 			Name:     "imagick",
 			SavePath: "./images",
+		},
+		Action: &ActionConf{
+			LoadScriptPath: "./scripts",
 		},
 		Logger: &logger.Config{Level: logger.DevelopmentLevel},
 	}
@@ -37,6 +45,7 @@ func Load(filename string) (*Config, error) {
 	viper.SetDefault("port", defaultConfig.Port)
 	viper.SetDefault("engine", defaultConfig.Engine)
 	viper.SetDefault("logger", defaultConfig.Logger)
+	viper.SetDefault("action", defaultConfig.Action)
 	viper.SetConfigFile(filename)
 	err := viper.ReadInConfig()
 	if err != nil {

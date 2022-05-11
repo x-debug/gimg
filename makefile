@@ -12,6 +12,7 @@ test:
 	@go test -v ./...
 
 debug:
+	@export CGO_CFLAGS_ALLOW='-Xpreprocessor'
 	@go run cmd/gimg/main.go
 
 report:

@@ -3,6 +3,7 @@ package processor
 import (
 	"bytes"
 	"fmt"
+	"gimg/config"
 	"gimg/fs"
 	"gimg/logger"
 	"gopkg.in/gographics/imagick.v3/imagick"
@@ -12,23 +13,28 @@ import (
 )
 
 type ImagickProcessor struct {
-	mw       *imagick.MagickWand
-	params   Params
-	fileHash string
-	actions  []Action
-	fs       fs.FileSystem
-	logger   logger.Logger
+	mw         *imagick.MagickWand
+	params     Params
+	fileHash   string
+	actions    []Action
+	fs         fs.FileSystem
+	logger     logger.Logger
+	actionConf *config.ActionConf
 }
 
-func newImagickProcessor(fs fs.FileSystem, logger logger.Logger, hash string) Processor {
+func newImagickProcessor(fs fs.FileSystem, logger logger.Logger, conf *config.Config, hash string) Processor {
 	mw := imagick.NewMagickWand()
 
-	self := &ImagickProcessor{mw: mw, fs: fs, fileHash: hash, logger: logger, actions: make([]Action, 0)}
+	self := &ImagickProcessor{mw: mw, fs: fs, fileHash: hash, logger: logger, actions: make([]Action, 0), actionConf: conf.Action}
 	return self
 }
 
 func (p *ImagickProcessor) GetLogger() logger.Logger {
 	return p.logger
+}
+
+func (p *ImagickProcessor) GetActionConf() *config.ActionConf {
+	return p.actionConf
 }
 
 func (p *ImagickProcessor) Load(file *os.File) error {

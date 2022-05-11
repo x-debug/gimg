@@ -31,8 +31,8 @@ func init() {
 	flag.StringVar(&configure, "conf", "./gimg.yml", "path of configure")
 }
 
-func initProcessor(conf *config.Config) {
-	engine = processor.NewEngine(processor.Imagick)
+func initEngine(conf *config.Config) {
+	engine = processor.NewEngine(processor.Imagick, conf.Engine)
 	engine.Initialize()
 }
 
@@ -58,7 +58,7 @@ func main() {
 
 	//Init logger
 	logger := lg.New(conf.Logger)
-	initProcessor(conf)
+	initEngine(conf)
 	defer engine.Terminate()
 
 	//Set run mode
@@ -105,6 +105,6 @@ func main() {
 	if err := srv.Shutdown(ctxTimeout); err != nil {
 		logger.Panic("Server forced to shutdown", lg.Error(err))
 	}
-	
+
 	logger.Info("Server exited")
 }

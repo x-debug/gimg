@@ -16,7 +16,7 @@ func GetHandler(ctx *pkg.Ctx) func(c *gin.Context) {
 		op := c.DefaultQuery("op", "")
 
 		ctx.Logger.Info("Raw query ", logger.String("Query", c.Request.URL.RawQuery), logger.String("Op", op))
-		processor := ctx.Engine.NewProcessor(ctx, ctx.Logger, hash).SetParam(c.Request.URL.RawQuery)
+		processor := ctx.Engine.NewProcessor(ctx, ctx.Logger, ctx.Conf, hash).SetParam(c.Request.URL.RawQuery)
 		defer processor.Destroy()
 
 		if op == "resize" {
@@ -27,6 +27,8 @@ func GetHandler(ctx *pkg.Ctx) func(c *gin.Context) {
 			processor.AddAction(pl.NewAction(pl.Flip))
 		} else if op == "rotate" {
 			processor.AddAction(pl.NewAction(pl.Rotate))
+		} else if op == "lua" {
+			processor.AddAction(pl.NewAction(pl.LUA))
 		} else {
 			processor.AddAction(pl.NewAction(pl.Nop))
 		}

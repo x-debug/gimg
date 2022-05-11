@@ -1,6 +1,11 @@
 package processor
 
-import "gimg/logger"
+import (
+	"errors"
+	"gimg/logger"
+	lua "github.com/yuin/gopher-lua"
+	luar "layeh.com/gopher-luar"
+)
 
 type ActionCtx struct {
 }
@@ -18,6 +23,7 @@ const (
 	Thumbnail
 	Flip
 	Rotate
+	LUA
 )
 
 //NopAction do nothing actually
@@ -93,6 +99,43 @@ func (ra *RotateAction) Do(p Processor) error {
 	return p.Rotate(ra.deg)
 }
 
+//LuaAction can custom with lua
+type LuaAction struct {
+	scriptName string
+}
+
+func (la *LuaAction) SetParams(params Params) {
+	la.scriptName = params.GetString("f", "")
+}
+
+func (la *LuaAction) Name() string {
+	return "lua"
+}
+
+func (la *LuaAction) Do(p Processor) error {
+	imgObj := NewFromProcessor(p)
+	L := lua.NewState()
+	defer L.Close()
+
+	if la.scriptName == "" {
+		return errors.New("script name is error")
+	}
+
+	L.SetGlobal("G", luar.New(L, imgObj))
+	p.GetLogger().Info("Lua script ", logger.String("ScriptName", la.scriptName))
+	conf := p.GetActionConf()
+	if conf == nil {
+		p.GetLogger().Error("Load lua action conf error")
+		return errors.New("load lua conf error")
+	}
+
+	filename := conf.LoadScriptPath + "/" + la.scriptName + ".lua"
+	if err := L.DoFile(filename); err != nil {
+		return err
+	}
+	return nil
+}
+
 func NewAction(typ int) Action {
 	if typ == Resize {
 		return &ResizeAction{}
@@ -100,6 +143,8 @@ func NewAction(typ int) Action {
 		return &ThumbnailAction{}
 	} else if typ == Rotate {
 		return &RotateAction{}
+	} else if typ == LUA {
+		return &LuaAction{}
 	}
 
 	return &NopAction{}
