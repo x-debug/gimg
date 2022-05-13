@@ -40,4 +40,9 @@ RUN cd && \
 	make -j$(nproc) && make install && \
 	ldconfig /usr/local/lib
 
+ADD . /go/projects/gimg
 WORKDIR /go/projects/gimg
+
+RUN make build
+
+CMD ["./gimg"]
