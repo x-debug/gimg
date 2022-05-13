@@ -10,16 +10,20 @@ GImg是通用的图片处理服务，能够进行图片缩放，制作缩略图�
 
 ### 安装
 ##### 源码安装
+```shell
 git clone https://github.com/x-debug/gimg.git
 
 cd gimg && make build
 
 ./gimg
+```
 
 ##### Docker镜像安装
-ocker pull nbboy/gimg:v1.4
+```shell
+docker pull nbboy/gimg:v1.4
 
 docker run -d -p 8888:8888 nbboy/gimg:v1.4
+```
 
 ### 功能
 - 图片缩放
