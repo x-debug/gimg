@@ -18,6 +18,9 @@ jobs:
       with:
         go-version: 1.17
 
+    - name: Install Deps
+      run: ./install_deps.sh
+
     - name: Build
       run: go build -v ./...
 

@@ -1,9 +1,4 @@
-FROM golang:1.16
-
-# Ignore APT warnings about not having a TTY
-ENV DEBIAN_FRONTEND noninteractive
-
-RUN apt-get update \
+apt-get update \
     && apt-get install -y \
         wget build-essential \
         pkg-config \
@@ -20,11 +15,7 @@ RUN apt-get update \
         --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
-ARG IMAGEMAGICK_PROJECT=ImageMagick
-ARG IMAGEMAGICK_VERSION=7.1.0-31
-ENV IMAGEMAGICK_VERSION=$IMAGEMAGICK_VERSION
-
-RUN cd && \
+cd && \
 	wget https://github.com/ImageMagick/${IMAGEMAGICK_PROJECT}/archive/refs/tags/${IMAGEMAGICK_VERSION}.tar.gz && \
 	tar xvzf ${IMAGEMAGICK_VERSION}.tar.gz && \
 	cd ImageMagick* && \
@@ -39,10 +30,3 @@ RUN cd && \
 	    --disable-docs && \
 	make -j$(nproc) && make install && \
 	ldconfig /usr/local/lib
-
-ADD . /go/projects/gimg
-WORKDIR /go/projects/gimg
-
-RUN make build
-
-CMD ["./gimg"]
