@@ -36,6 +36,8 @@ func GetHandler(ctx *pkg.Ctx) func(c *gin.Context) {
 			processor.AddAction(pl.NewAction(pl.CROP))
 		} else if op == "quality" {
 			processor.AddAction(pl.NewAction(pl.QUALITY))
+		} else if op == "format" {
+			processor.AddAction(pl.NewAction(pl.FORMAT))
 		} else {
 			processor.AddAction(pl.NewAction(pl.Nop))
 		}

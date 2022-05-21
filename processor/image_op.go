@@ -7,4 +7,5 @@ type ImageOp interface {
 	GrayScale() error
 	Crop(x, y int, width, height uint) error
 	SetQuality(quality uint) error
+	SetFormat(format string) error
 }
