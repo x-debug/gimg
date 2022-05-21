@@ -5,4 +5,5 @@ type ImageOp interface {
 	Thumbnail(width, height uint) error
 	Rotate(deg float64) error
 	GrayScale() error
+	Crop(x, y int, width, height uint) error
 }

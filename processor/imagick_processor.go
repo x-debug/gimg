@@ -139,3 +139,7 @@ func (p *ImagickProcessor) Rotate(deg float64) error {
 func (p *ImagickProcessor) GrayScale() error {
 	return p.mw.SetImageType(imagick.IMAGE_TYPE_GRAYSCALE)
 }
+
+func (p *ImagickProcessor) Crop(x, y int, width, height uint) error {
+	return p.mw.CropImage(width, height, x, y)
+}
