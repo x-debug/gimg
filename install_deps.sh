@@ -1,19 +1,18 @@
-apt-get update \
-    && apt-get install -y \
-        wget build-essential \
-        pkg-config \
-        --no-install-recommends \
-    && apt-get -q -y install \
-        libjpeg-dev \
-        libpng-dev \
-        libtiff-dev \
-        libgif-dev \
-        libx11-dev \
-        fontconfig fontconfig-config libfontconfig1-dev \
-        ghostscript gsfonts gsfonts-x11 \
-        libfreetype6-dev \
-        --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/*
+sudo apt-get install -y \
+	wget build-essential \
+	pkg-config \
+	--no-install-recommends \
+&& sudo apt-get -q -y install \
+	libjpeg-dev \
+	libpng-dev \
+	libtiff-dev \
+	libgif-dev \
+	libx11-dev \
+	fontconfig fontconfig-config libfontconfig1-dev \
+	ghostscript gsfonts gsfonts-x11 \
+	libfreetype6-dev \
+	--no-install-recommends \
+&& sudo rm -rf /var/lib/apt/lists/*
 
 cd && \
 	wget https://github.com/ImageMagick/${IMAGEMAGICK_PROJECT}/archive/refs/tags/${IMAGEMAGICK_VERSION}.tar.gz && \
@@ -28,5 +27,5 @@ cd && \
 	    --with-freetype=yes \
 	    --with-gslib \
 	    --disable-docs && \
-	make -j$(nproc) && make install && \
+	make -j$(nproc) && sudo make install && \
 	ldconfig /usr/local/lib
