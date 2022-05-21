@@ -32,6 +32,8 @@ func GetHandler(ctx *pkg.Ctx) func(c *gin.Context) {
 			processor.AddAction(pl.NewAction(pl.LUA))
 		} else if op == "gray" {
 			processor.AddAction(pl.NewAction(pl.GRAY))
+		} else if op == "crop" {
+			processor.AddAction(pl.NewAction(pl.CROP))
 		} else {
 			processor.AddAction(pl.NewAction(pl.Nop))
 		}
