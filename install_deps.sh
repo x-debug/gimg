@@ -1,3 +1,7 @@
+IMAGEMAGICK_PROJECT=ImageMagick
+IMAGEMAGICK_VERSION=7.1.0-31
+IMAGEMAGICK_VERSION=$IMAGEMAGICK_VERSION
+
 sudo apt-get install -y \
 	wget build-essential \
 	pkg-config \
