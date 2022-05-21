@@ -32,4 +32,4 @@ cd && \
 	    --with-gslib \
 	    --disable-docs && \
 	make -j$(nproc) && sudo make install && \
-	ldconfig /usr/local/lib
+	sudo ldconfig /usr/local/lib
