@@ -143,3 +143,11 @@ func (p *ImagickProcessor) GrayScale() error {
 func (p *ImagickProcessor) Crop(x, y int, width, height uint) error {
 	return p.mw.CropImage(width, height, x, y)
 }
+
+func (p *ImagickProcessor) SetQuality(quality uint) error {
+	return p.mw.SetCompressionQuality(quality)
+}
+
+func (p *ImagickProcessor) SetFormat(format string) error {
+	return p.mw.SetFormat(format)
+}

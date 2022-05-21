@@ -6,4 +6,6 @@ type ImageOp interface {
 	Rotate(deg float64) error
 	GrayScale() error
 	Crop(x, y int, width, height uint) error
+	SetQuality(quality uint) error
+	SetFormat(format string) error
 }
