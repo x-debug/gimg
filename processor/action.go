@@ -3,6 +3,7 @@ package processor
 import (
 	"errors"
 	"gimg/logger"
+
 	lua "github.com/yuin/gopher-lua"
 	luar "layeh.com/gopher-luar"
 )
@@ -24,6 +25,7 @@ const (
 	Flip
 	Rotate
 	LUA
+	GRAY
 )
 
 //NopAction do nothing actually
@@ -80,6 +82,20 @@ func (ta *ThumbnailAction) Name() string {
 func (ta *ThumbnailAction) Do(p Processor) error {
 	p.GetLogger().Info("Thumbnail image file ", logger.Int("Width", ta.width), logger.Int("Height", ta.height))
 	return p.Thumbnail(uint(ta.width), uint(ta.height))
+}
+
+type GrayScaleAction struct {
+}
+
+func (ga *GrayScaleAction) SetParams(params Params) {
+}
+
+func (ga *GrayScaleAction) Name() string {
+	return "grayscale"
+}
+
+func (ga *GrayScaleAction) Do(p Processor) error {
+	return p.GrayScale()
 }
 
 //RotateAction can rotate image file
@@ -145,6 +161,8 @@ func NewAction(typ int) Action {
 		return &RotateAction{}
 	} else if typ == LUA {
 		return &LuaAction{}
+	} else if typ == GRAY {
+		return &GrayScaleAction{}
 	}
 
 	return &NopAction{}

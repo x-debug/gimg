@@ -6,10 +6,11 @@ import (
 	"gimg/config"
 	"gimg/fs"
 	"gimg/logger"
-	"gopkg.in/gographics/imagick.v3/imagick"
 	"io"
 	"os"
 	"strings"
+
+	"gopkg.in/gographics/imagick.v3/imagick"
 )
 
 type ImagickProcessor struct {
@@ -133,4 +134,8 @@ func (p *ImagickProcessor) Thumbnail(width, height uint) error {
 
 func (p *ImagickProcessor) Rotate(deg float64) error {
 	return p.mw.RotateImage(imagick.NewPixelWand(), deg)
+}
+
+func (p *ImagickProcessor) GrayScale() error {
+	return p.mw.SetImageType(imagick.IMAGE_TYPE_GRAYSCALE)
 }

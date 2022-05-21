@@ -5,8 +5,9 @@ import (
 	"gimg/logger"
 	"gimg/pkg"
 	pl "gimg/processor"
-	"github.com/gin-gonic/gin"
 	"os"
+
+	"github.com/gin-gonic/gin"
 )
 
 // GetHandler Get image
@@ -29,6 +30,8 @@ func GetHandler(ctx *pkg.Ctx) func(c *gin.Context) {
 			processor.AddAction(pl.NewAction(pl.Rotate))
 		} else if op == "lua" {
 			processor.AddAction(pl.NewAction(pl.LUA))
+		} else if op == "gray" {
+			processor.AddAction(pl.NewAction(pl.GRAY))
 		} else {
 			processor.AddAction(pl.NewAction(pl.Nop))
 		}
