@@ -26,6 +26,7 @@ const (
 	Rotate
 	LUA
 	GRAY
+	CROP
 )
 
 //NopAction do nothing actually
@@ -98,6 +99,26 @@ func (ga *GrayScaleAction) Do(p Processor) error {
 	return p.GrayScale()
 }
 
+type CropAction struct {
+	x, y          int
+	width, height uint
+}
+
+func (ca *CropAction) SetParams(params Params) {
+	ca.x = params.GetInt("x", 0)
+	ca.y = params.GetInt("y", 0)
+	ca.width = uint(params.GetInt("w", 0))
+	ca.height = uint(params.GetInt("h", 0))
+}
+
+func (ca *CropAction) Name() string {
+	return "crop"
+}
+
+func (ca *CropAction) Do(p Processor) error {
+	return p.Crop(ca.x, ca.y, ca.width, ca.height)
+}
+
 //RotateAction can rotate image file
 type RotateAction struct {
 	deg float64
@@ -163,6 +184,8 @@ func NewAction(typ int) Action {
 		return &LuaAction{}
 	} else if typ == GRAY {
 		return &GrayScaleAction{}
+	} else if typ == CROP {
+		return &CropAction{}
 	}
 
 	return &NopAction{}
