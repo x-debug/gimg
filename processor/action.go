@@ -27,6 +27,7 @@ const (
 	LUA
 	GRAY
 	CROP
+	QUALITY
 )
 
 //NopAction do nothing actually
@@ -119,6 +120,23 @@ func (ca *CropAction) Do(p Processor) error {
 	return p.Crop(ca.x, ca.y, ca.width, ca.height)
 }
 
+type QualityAction struct {
+	quality uint
+}
+
+func (qa *QualityAction) SetParams(params Params) {
+	qa.quality = uint(params.GetInt("q", 0))
+}
+
+func (qa *QualityAction) Name() string {
+	return "quality"
+}
+
+func (qa *QualityAction) Do(p Processor) error {
+	p.GetLogger().Info("SetQuality", logger.Int("Quality", int(qa.quality)))
+	return p.SetQuality(qa.quality)
+}
+
 //RotateAction can rotate image file
 type RotateAction struct {
 	deg float64
@@ -186,6 +204,8 @@ func NewAction(typ int) Action {
 		return &GrayScaleAction{}
 	} else if typ == CROP {
 		return &CropAction{}
+	} else if typ == QUALITY {
+		return &QualityAction{}
 	}
 
 	return &NopAction{}
