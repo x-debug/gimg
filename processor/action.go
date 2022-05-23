@@ -29,6 +29,7 @@ const (
 	CROP
 	QUALITY
 	FORMAT
+	ROUND
 )
 
 //NopAction do nothing actually
@@ -172,6 +173,23 @@ func (ra *RotateAction) Do(p Processor) error {
 	return p.Rotate(ra.deg)
 }
 
+type RoundAction struct {
+	rx, ry float64
+}
+
+func (ra *RoundAction) SetParams(params Params) {
+	ra.rx = params.GetFloat64("rx", 0)
+	ra.ry = params.GetFloat64("ry", 0)
+}
+
+func (ra *RoundAction) Name() string {
+	return "round"
+}
+
+func (ra *RoundAction) Do(p Processor) error {
+	return p.RoundCorner(ra.rx, ra.ry)
+}
+
 //LuaAction can custom with lua
 type LuaAction struct {
 	scriptName string
@@ -226,6 +244,8 @@ func NewAction(typ int) Action {
 		return &QualityAction{}
 	} else if typ == FORMAT {
 		return &FormatAction{}
+	} else if typ == ROUND {
+		return &RoundAction{}
 	}
 
 	return &NopAction{}

@@ -151,3 +151,32 @@ func (p *ImagickProcessor) SetQuality(quality uint) error {
 func (p *ImagickProcessor) SetFormat(format string) error {
 	return p.mw.SetFormat(format)
 }
+
+func (p *ImagickProcessor) RoundCorner(rx, ry float64) error {
+	p.logger.Info("RoundCorner", logger.Float64("RX", rx), logger.Float64("RY", ry))
+
+	mw := imagick.NewMagickWand()
+	pw := imagick.NewPixelWand()
+	dw := imagick.NewDrawingWand()
+
+	imgWidth := p.mw.GetImageWidth()
+	imgHeight := p.mw.GetImageHeight()
+
+	p.logger.Info("RoundCorner", logger.Int("Image Width", int(imgWidth)), logger.Int("Image Height", int(imgHeight)))
+	// Create the initial 640x480 transparent canvas
+	pw.SetColor("none")
+	mw.NewImage(imgWidth, imgHeight, pw)
+
+	pw.SetColor("white")
+	dw.SetFillColor(pw)
+	dw.RoundRectangle(0, 0, float64(imgWidth-1), float64(imgHeight-1), rx, ry)
+	mw.DrawImage(dw)
+
+	// Note that MagickSetImageCompose is usually only used for the MagickMontageImage
+	// function and isn't used or needed by MagickCompositeImage
+	err := mw.CompositeImage(p.mw, imagick.COMPOSITE_OP_SRC_IN, true, 0, 0)
+	p.logger.Info("Image format", logger.String("format", p.mw.GetFormat()))
+	mw.SetFormat("png") //Set png format
+	p.mw = mw
+	return err
+}
