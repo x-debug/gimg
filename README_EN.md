@@ -20,9 +20,9 @@ cd gimg && make build
 
 ##### Docker image installation
 ```shell
-docker pull nbboy/gimg:v1.4
+docker pull nbboy/gimg:v1.5
 
-docker run -d -p 8888:8888 nbboy/gimg:v1.4
+docker run -d -p 8888:8888 nbboy/gimg:v1.5
 ```
 
 ### Features
