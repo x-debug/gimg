@@ -38,6 +38,8 @@ func GetHandler(ctx *pkg.Ctx) func(c *gin.Context) {
 			processor.AddAction(pl.NewAction(pl.QUALITY))
 		} else if op == "format" {
 			processor.AddAction(pl.NewAction(pl.FORMAT))
+		} else if op == "round" {
+			processor.AddAction(pl.NewAction(pl.ROUND))
 		} else {
 			processor.AddAction(pl.NewAction(pl.Nop))
 		}
@@ -83,6 +85,7 @@ func GetHandler(ctx *pkg.Ctx) func(c *gin.Context) {
 
 		err = processor.WriteToFile(wfile)
 		if err != nil {
+			ctx.Logger.Error("Write Image To File", logger.Error(err))
 			pkg.Fail(c, "Copy file error")
 			return
 		}

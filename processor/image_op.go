@@ -8,4 +8,5 @@ type ImageOp interface {
 	Crop(x, y int, width, height uint) error
 	SetQuality(quality uint) error
 	SetFormat(format string) error
+	RoundCorner(rx, ry float64) error
 }
