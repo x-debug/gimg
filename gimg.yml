@@ -5,3 +5,6 @@ engine:
   save_path: ./images
 lua:
   load_path: ./scripts
+auth:
+  user: test
+  pwd: 123456

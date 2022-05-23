@@ -2,6 +2,7 @@ package config
 
 import (
 	"gimg/logger"
+
 	"github.com/spf13/viper"
 )
 
@@ -14,12 +15,18 @@ type ActionConf struct {
 	LoadScriptPath string `mapstructure:"load_path"`
 }
 
+type AuthConf struct {
+	User     string `mapstructure:"user"`
+	Password string `mapstructure:"pwd"`
+}
+
 type Config struct {
 	Debug  bool
 	Port   int
 	Engine *EngineConf
 	Logger *logger.Config
 	Action *ActionConf
+	Auth   *AuthConf
 }
 
 func defaultConfig() *Config {
@@ -34,6 +41,7 @@ func defaultConfig() *Config {
 			LoadScriptPath: "./scripts",
 		},
 		Logger: &logger.Config{Level: logger.DevelopmentLevel},
+		Auth:   &AuthConf{User: "test", Password: "123456"},
 	}
 }
 
@@ -46,6 +54,7 @@ func Load(filename string) (*Config, error) {
 	viper.SetDefault("engine", defaultConfig.Engine)
 	viper.SetDefault("logger", defaultConfig.Logger)
 	viper.SetDefault("action", defaultConfig.Action)
+	viper.SetDefault("auth", defaultConfig.Auth)
 	viper.SetConfigFile(filename)
 	err := viper.ReadInConfig()
 	if err != nil {

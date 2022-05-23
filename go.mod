@@ -8,6 +8,7 @@ require (
 )
 
 require (
+	github.com/prometheus/common v0.9.1
 	github.com/spf13/viper v1.11.0
 	github.com/ugorji/go v1.2.6 // indirect
 	github.com/yuin/gopher-lua v0.0.0-20220504180219-658193537a64
