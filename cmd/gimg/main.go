@@ -8,7 +8,6 @@ import (
 	lg "gimg/logger"
 	"gimg/pkg"
 	"gimg/processor"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"os"
@@ -16,6 +15,8 @@ import (
 	"strconv"
 	"syscall"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 var (
@@ -76,9 +77,11 @@ func main() {
 
 	//Register handlers
 	router.StaticFile("/favicon.ico", "./resources/favicon-16x16.png")
-	router.POST("/upload", handlers.UploadHandler(ctx))
 	router.StaticFile("/demo", "./examples/demo.html")
-	router.GET("/:hash", handlers.GetHandler(ctx))
+
+	group_router := router.Group("/", gin.BasicAuth(gin.Accounts{conf.Auth.User: conf.Auth.Password}))
+	group_router.POST("/upload", handlers.UploadHandler(ctx))
+	group_router.GET("/:hash", handlers.GetHandler(ctx))
 
 	logger.Info("Http listen ", lg.Int("Port", conf.Port))
 	srv := &http.Server{
