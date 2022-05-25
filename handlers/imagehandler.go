@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"gimg/cache"
 	"gimg/logger"
 	"gimg/pkg"
 	pl "gimg/processor"
@@ -18,6 +19,24 @@ func GetHandler(ctx *pkg.Ctx) func(c *gin.Context) {
 
 		ctx.Logger.Info("Raw query ", logger.String("Query", c.Request.URL.RawQuery), logger.String("Op", op))
 		processor := ctx.Engine.NewProcessor(ctx, ctx.Logger, ctx.Conf, hash).SetParam(c.Request.URL.RawQuery)
+		//Cache processed image with parameters
+		imageBlob, err := ctx.Cache.Get(processor.ActionFinger())
+		if err != nil {
+			if cache.CacheMiss != err {
+				ctx.Logger.Info("Cache brocker get error ", logger.Error(err))
+				pkg.Fail(c, fmt.Sprintf("Cache brocker configuare error or shutdown?, error:%s", err.Error()))
+				return
+			}
+			ctx.Logger.Info("Cache pass")
+		} else {
+			_, err = c.Writer.Write(imageBlob)
+			if err != nil {
+				pkg.Fail(c, fmt.Sprintf("Write image blob to http stream:%s", err.Error()))
+			} else {
+				ctx.Logger.Info("Image cache hit", logger.String("CacheKey", processor.ActionFinger()))
+			}
+			return
+		}
 		defer processor.Destroy()
 
 		if op == "resize" {
@@ -52,7 +71,7 @@ func GetHandler(ctx *pkg.Ctx) func(c *gin.Context) {
 		}(closef)
 		if err == nil {
 			ctx.Logger.Info("Cached file hit, read from cache ", logger.String("Filename", rFile.Name()))
-			ctx.RenderFile(c, rFile)
+			ctx.RenderFile(c, processor, rFile)
 			return
 		}
 
@@ -68,7 +87,7 @@ func GetHandler(ctx *pkg.Ctx) func(c *gin.Context) {
 		}
 
 		if processor.ActionOnlyNop() {
-			ctx.RenderFile(c, rFile)
+			ctx.RenderFile(c, processor, rFile)
 			return
 		}
 
@@ -97,7 +116,7 @@ func GetHandler(ctx *pkg.Ctx) func(c *gin.Context) {
 			return
 		}
 
-		ctx.RenderFile(c, wfile)
+		ctx.RenderFile(c, processor, wfile)
 	}
 }
 

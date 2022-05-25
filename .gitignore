@@ -17,3 +17,4 @@ gen/
 images/
 .idea/
 gimg
+*.swp
