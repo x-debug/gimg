@@ -3,27 +3,30 @@ package pkg
 import (
 	"bytes"
 	"fmt"
+	"gimg/cache"
 	"gimg/config"
 	"gimg/logger"
 	lg "gimg/logger"
 	"gimg/processor"
-	"github.com/gin-gonic/gin"
 	"io"
 	"mime/multipart"
 	"os"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Ctx struct {
 	Conf   *config.Config
 	Engine processor.Engine
 	Logger logger.Logger
+	Cache  cache.Cache
 }
 
-func CreateCtx(conf *config.Config, logger logger.Logger, engine processor.Engine) *Ctx {
-	return &Ctx{Conf: conf, Engine: engine, Logger: logger}
+func CreateCtx(conf *config.Config, cache cache.Cache, logger logger.Logger, engine processor.Engine) *Ctx {
+	return &Ctx{Conf: conf, Cache: cache, Engine: engine, Logger: logger}
 }
 
-func (fc *Ctx) RenderFile(c *gin.Context, file *os.File) {
+func (fc *Ctx) RenderFile(c *gin.Context, finger processor.HttpFinger, file *os.File) {
 	//set file begin of position
 	_, _ = file.Seek(0, io.SeekStart)
 
@@ -33,6 +36,16 @@ func (fc *Ctx) RenderFile(c *gin.Context, file *os.File) {
 		Fail(c, "Copy buffer error")
 		return
 	}
+
+	fc.Logger.Info("Write cache brocker")
+	//Ignore the error
+	_ = fc.Cache.Set(finger.ActionFinger(), wBuffer.Bytes())
+	/*
+		if err != nil {
+			Fail(c, "Write buffer error")
+			return
+		}
+	*/
 
 	nBytes, err := c.Writer.Write(wBuffer.Bytes())
 	fc.Logger.Info("Write buffer", lg.Int("Bytes", nBytes))

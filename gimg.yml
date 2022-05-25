@@ -8,3 +8,8 @@ lua:
 auth:
   user: test
   pwd: 123456
+cache:
+  type: memcached
+  brockers:
+    - addr: 127.0.0.1
+      port: 11211

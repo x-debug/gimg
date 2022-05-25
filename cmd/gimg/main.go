@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"gimg/cache"
 	"gimg/config"
 	"gimg/handlers"
 	lg "gimg/logger"
@@ -73,7 +74,12 @@ func main() {
 
 	router := gin.Default()
 	router.MaxMultipartMemory = 100 << 20
-	ctx := pkg.CreateCtx(conf, logger, engine)
+	cached, err := cache.NewCache(conf.Cache)
+	if err != nil {
+		logger.Error("Cache initialize error", lg.Error(err))
+		return
+	}
+	ctx := pkg.CreateCtx(conf, cached, logger, engine)
 
 	//Register handlers
 	router.StaticFile("/favicon.ico", "./resources/favicon-16x16.png")

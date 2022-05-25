@@ -20,6 +20,16 @@ type AuthConf struct {
 	Password string `mapstructure:"pwd"`
 }
 
+type CacheBrockerConf struct {
+	Addr string `mapstructure:"addr"`
+	Port int    `mapstructure:"port"`
+}
+
+type CacheConf struct {
+	Type     string              `mapstructure:"type"`
+	Brockers []*CacheBrockerConf `mapstructure:"brockers"`
+}
+
 type Config struct {
 	Debug  bool
 	Port   int
@@ -27,6 +37,7 @@ type Config struct {
 	Logger *logger.Config
 	Action *ActionConf
 	Auth   *AuthConf
+	Cache  *CacheConf
 }
 
 func defaultConfig() *Config {
@@ -42,6 +53,7 @@ func defaultConfig() *Config {
 		},
 		Logger: &logger.Config{Level: logger.DevelopmentLevel},
 		Auth:   &AuthConf{User: "test", Password: "123456"},
+		Cache:  &CacheConf{Type: "memory", Brockers: []*CacheBrockerConf{}},
 	}
 }
 
@@ -55,6 +67,7 @@ func Load(filename string) (*Config, error) {
 	viper.SetDefault("logger", defaultConfig.Logger)
 	viper.SetDefault("action", defaultConfig.Action)
 	viper.SetDefault("auth", defaultConfig.Auth)
+	viper.SetDefault("cache", defaultConfig.Cache)
 	viper.SetConfigFile(filename)
 	err := viper.ReadInConfig()
 	if err != nil {

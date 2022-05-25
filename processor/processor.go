@@ -45,13 +45,13 @@ type Processor interface {
 	FileW
 	ImageOp
 	Loggable
+	HttpFinger
 
 	Load(file *os.File) error
 	SetParam(param string) Processor
 	GetActionConf() *config.ActionConf
 	Destroy()
 	AddAction(action Action)
-	ActionFinger() string
 	LenOfAction() int
 	ActionOnlyNop() bool
 	ReadCached() (*os.File, func(), error)
