@@ -85,9 +85,21 @@ func main() {
 	router.StaticFile("/favicon.ico", "./resources/favicon-16x16.png")
 	router.StaticFile("/demo", "./examples/demo.html")
 
-	group_router := router.Group("/", gin.BasicAuth(gin.Accounts{conf.Auth.User: conf.Auth.Password}))
-	group_router.POST("/upload", handlers.UploadHandler(ctx))
-	group_router.GET("/:hash", handlers.GetHandler(ctx))
+	if conf.Auth.Close {
+		router.POST("/upload", handlers.UploadHandler(ctx))
+		router.GET("/:hash", handlers.GetHandler(ctx))
+	} else {
+		var group_router *gin.RouterGroup
+
+		if conf.Auth.Type == "basic" {
+			group_router = router.Group("/", gin.BasicAuth(gin.Accounts{conf.Auth.User: conf.Auth.Password}))
+		} else {
+			logger.Error("Auth configuare type error")
+			return
+		}
+		group_router.POST("/upload", handlers.UploadHandler(ctx))
+		group_router.GET("/:hash", handlers.GetHandler(ctx))
+	}
 
 	logger.Info("Http listen ", lg.Int("Port", conf.Port))
 	srv := &http.Server{
