@@ -16,6 +16,8 @@ type ActionConf struct {
 }
 
 type AuthConf struct {
+	Close    bool   `mapstructure:"close"`
+	Type     string `mapstructure:"type"`
 	User     string `mapstructure:"user"`
 	Password string `mapstructure:"pwd"`
 }
@@ -52,7 +54,7 @@ func defaultConfig() *Config {
 			LoadScriptPath: "./scripts",
 		},
 		Logger: &logger.Config{Level: logger.DevelopmentLevel},
-		Auth:   &AuthConf{User: "test", Password: "123456"},
+		Auth:   &AuthConf{User: "test", Password: "123456", Type: "basic", Close: true},
 		Cache:  &CacheConf{Type: "memory", Brockers: []*CacheBrockerConf{}},
 	}
 }

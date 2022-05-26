@@ -6,8 +6,10 @@ engine:
 lua:
   load_path: ./scripts
 auth:
+  close: false
+  type: basic
   user: test
-  pwd: 123456
+  pwd: test
 cache:
   type: memcached
   brockers:
