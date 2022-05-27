@@ -1,4 +1,4 @@
-.PHONY: all build clean debug test report count
+.PHONY: all build clean test report count
 BIN_FILE=gimg
 all: build
 build:
@@ -10,10 +10,6 @@ clean:
 
 test:
 	@go test -v ./...
-
-debug:
-	@export CGO_CFLAGS_ALLOW='-Xpreprocessor'
-	@go run cmd/gimg/main.go
 
 report:
 	@python2.7 ~/Projects/opensource/gitstats/gitstats.py ./ gen

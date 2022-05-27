@@ -1,12 +1,12 @@
-![GImg](./resources/logo-192x192.png)
+![Gimg](./resources/logo-192x192.png)
 
 **Lightweight image processing service built by Golang**
 
-GImg is a general-purpose image processing service that can scale images, make thumbnails, and more.
+Gimg is a general-purpose image processing service that can scale images, make thumbnails, and more.
 
-It provides a lot of object storage backends (localfs/memcached/redis/ssdb/fastdfs...), focusing on image processing.
+It provides a lot of object storage backends (localfs/fastdfs...), and cache hot images(memory/memcached/redis/ssdb), focusing on image processing.
 
-A common pattern is to put it behind an HTTP proxy server, such as Nginx or Varnish.
+We can put it behind an HTTP proxy server, such as Nginx or Varnish. You can specify the image path and it will grab it.
 
 ### Setup
 ##### Source installation

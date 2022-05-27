@@ -1,12 +1,12 @@
-![GImg](./resources/logo-192x192.png)
+![Gimg](./resources/logo-192x192.png)
 
 **Golang构建的轻量级图片处理服务**
 
-GImg是通用的图片处理服务，能够进行图片缩放，制作缩略图，等等。
+Gimg是通用的图片处理服务,能够缩放图片,制作缩略图等。
 
-它提供非常多的对象存储后端（localfs/memcached/redis/ssdb/fastdfs...），专注做图片的处理。
+它提供非常多的对象存储后端(localfs/fastdfs...),对热点图片进行缓存(memory/memcached/redis/ssdb),专注做图片的处理。
 
-常用的模式是把它放到HTTP代理服务器之后，比如Nginx或者Varnish。
+您可以把它放到HTTP代理服务器之后,比如Nginx或者Varnish,也可以指定图片获取的路径,它会自动去抓取图片。
 
 ### 安装
 ##### 源码安装

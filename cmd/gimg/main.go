@@ -109,8 +109,7 @@ func main() {
 
 	//Start http server
 	go func() {
-		err = srv.ListenAndServe()
-		logger.Error("Serve http ", lg.Error(err))
+		_ = srv.ListenAndServe()
 	}()
 
 	//Create signal wait until server exit
