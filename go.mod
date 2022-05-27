@@ -8,6 +8,7 @@ require (
 )
 
 require (
+	github.com/allegro/bigcache/v3 v3.0.2 // indirect
 	github.com/bradfitz/gomemcache v0.0.0-20220106215444-fb4bf637b56d
 	github.com/spf13/viper v1.11.0
 	github.com/ugorji/go v1.2.6 // indirect

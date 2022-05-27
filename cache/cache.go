@@ -3,6 +3,7 @@ package cache
 import (
 	"errors"
 	"gimg/config"
+	"gimg/logger"
 )
 
 var CacheMiss = errors.New("Cache miss")
@@ -13,15 +14,26 @@ type Cache interface {
 	Set(key string, values []byte) error
 }
 
-func NewCache(cfg *config.CacheConf) (Cache, error) {
+func NewCache(cfg *config.CacheConf, logger logger.Logger) (Cache, error) {
+	var err error
+	var cache Cache
+
 	if cfg.Type == "memcached" {
 		c := &memcachedCache{}
-		err := c.initialize(cfg.Brockers)
-		if err != nil {
-			return nil, err
-		}
-		return c, nil
+		err = c.initialize(logger, cfg)
+		logger.Info("Memcached initialized")
+		cache = c
+	} else if cfg.Type == "memory" {
+		c := &memoryCache{}
+		err = c.initialize(logger, cfg)
+		logger.Info("Memory initialized")
+		cache = c
+	} else {
+		return nil, CacheNotFound
+	}
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, CacheNotFound
+	return cache, nil
 }

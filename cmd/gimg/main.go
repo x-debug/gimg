@@ -74,7 +74,7 @@ func main() {
 
 	router := gin.Default()
 	router.MaxMultipartMemory = 100 << 20
-	cached, err := cache.NewCache(conf.Cache)
+	cached, err := cache.NewCache(conf.Cache, logger)
 	if err != nil {
 		logger.Error("Cache initialize error", lg.Error(err))
 		return

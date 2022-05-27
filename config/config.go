@@ -29,6 +29,7 @@ type CacheBrockerConf struct {
 
 type CacheConf struct {
 	Type     string              `mapstructure:"type"`
+	LifeTime int64               `mapstructure:"life_time"` //only for memory cache
 	Brockers []*CacheBrockerConf `mapstructure:"brockers"`
 }
 
@@ -55,7 +56,7 @@ func defaultConfig() *Config {
 		},
 		Logger: &logger.Config{Level: logger.DevelopmentLevel},
 		Auth:   &AuthConf{User: "test", Password: "123456", Type: "basic", Close: true},
-		Cache:  &CacheConf{Type: "memory", Brockers: []*CacheBrockerConf{}},
+		Cache:  &CacheConf{Type: "memory", Brockers: []*CacheBrockerConf{}, LifeTime: 60},
 	}
 }
 
@@ -65,11 +66,17 @@ func Load(filename string) (*Config, error) {
 	defaultConfig := defaultConfig()
 	viper.SetDefault("debug", defaultConfig.Debug)
 	viper.SetDefault("port", defaultConfig.Port)
-	viper.SetDefault("engine", defaultConfig.Engine)
+	viper.SetDefault("engine.save_path", defaultConfig.Engine.SavePath)
+	viper.SetDefault("engine.name", defaultConfig.Engine.Name)
 	viper.SetDefault("logger", defaultConfig.Logger)
-	viper.SetDefault("action", defaultConfig.Action)
-	viper.SetDefault("auth", defaultConfig.Auth)
-	viper.SetDefault("cache", defaultConfig.Cache)
+	viper.SetDefault("action.load_path", defaultConfig.Action.LoadScriptPath)
+	viper.SetDefault("auth.close", defaultConfig.Auth.Close)
+	viper.SetDefault("auth.pwd", defaultConfig.Auth.Password)
+	viper.SetDefault("auth.type", defaultConfig.Auth.Type)
+	viper.SetDefault("auth.user", defaultConfig.Auth.User)
+	viper.SetDefault("cache.life_time", defaultConfig.Cache.LifeTime)
+	viper.SetDefault("cache.type", defaultConfig.Cache.Type)
+	viper.SetDefault("cache.brockers", defaultConfig.Cache.Brockers)
 	viper.SetConfigFile(filename)
 	err := viper.ReadInConfig()
 	if err != nil {

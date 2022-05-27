@@ -11,7 +11,7 @@ auth:
   user: test
   pwd: test
 cache:
-  type: memcached
+  type: memory
   brockers:
     - addr: 127.0.0.1
       port: 11211
