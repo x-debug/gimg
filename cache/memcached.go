@@ -2,6 +2,7 @@ package cache
 
 import (
 	"gimg/config"
+	"gimg/logger"
 	"strconv"
 
 	"github.com/bradfitz/gomemcache/memcache"
@@ -9,11 +10,13 @@ import (
 
 type memcachedCache struct {
 	client *memcache.Client
+	logger logger.Logger
 }
 
-func (mc *memcachedCache) initialize(brockers []*config.CacheBrockerConf) error {
+func (mc *memcachedCache) initialize(logger logger.Logger, cfg *config.CacheConf) error {
+	mc.logger = logger
 	addrPairs := make([]string, 0)
-	for _, brocker := range brockers {
+	for _, brocker := range cfg.Brockers {
 		addrPairs = append(addrPairs, brocker.Addr+":"+strconv.Itoa(brocker.Port))
 	}
 	mc.client = memcache.New(addrPairs...)
