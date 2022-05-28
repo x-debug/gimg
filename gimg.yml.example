@@ -1,4 +1,4 @@
-debug: on
+debug: true
 port: 8888
 engine:
   name: imagick
