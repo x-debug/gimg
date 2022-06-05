@@ -6,6 +6,11 @@ import (
 	"github.com/spf13/viper"
 )
 
+type ProxyConf struct {
+	BaseRemotePath string `mapstructure:"base_remote_path"`
+	RequestTimeout int    `mapstructure:"request_timeout"`
+}
+
 type EngineConf struct {
 	SavePath string `mapstructure:"save_path"`
 	Name     string
@@ -41,6 +46,7 @@ type Config struct {
 	Action *ActionConf
 	Auth   *AuthConf
 	Cache  *CacheConf
+	Proxy  *ProxyConf
 }
 
 func defaultConfig() *Config {
@@ -57,6 +63,7 @@ func defaultConfig() *Config {
 		Logger: &logger.Config{Level: logger.DevelopmentLevel},
 		Auth:   &AuthConf{User: "test", Password: "123456", Type: "basic", Close: true},
 		Cache:  &CacheConf{Type: "memory", Brockers: []*CacheBrockerConf{}, LifeTime: 60},
+		Proxy:  &ProxyConf{BaseRemotePath: "", RequestTimeout: 10}, //10 second for default setting
 	}
 }
 
@@ -77,6 +84,8 @@ func Load(filename string) (*Config, error) {
 	viper.SetDefault("cache.life_time", defaultConfig.Cache.LifeTime)
 	viper.SetDefault("cache.type", defaultConfig.Cache.Type)
 	viper.SetDefault("cache.brockers", defaultConfig.Cache.Brockers)
+	viper.SetDefault("proxy.base_remote_path", defaultConfig.Proxy.BaseRemotePath)
+	viper.SetDefault("proxy.request_timeout", defaultConfig.Proxy.RequestTimeout)
 	viper.SetConfigFile(filename)
 	err := viper.ReadInConfig()
 	if err != nil {
