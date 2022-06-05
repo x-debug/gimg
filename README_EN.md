@@ -36,6 +36,7 @@ docker run -d -p 8888:8888 nbboy/gimg:v1.5
 - Set image quality 
 - Set image format
 - Custom lua script
+- Process image with remote url
 
 ### Architecture design
 
