@@ -7,7 +7,7 @@ import (
 	"mime/multipart"
 )
 
-func CalcMd5(file multipart.File) (string, error) {
+func CalcMd5File(file multipart.File) (string, error) {
 	h := md5.New()
 	_, err := io.Copy(h, file)
 
@@ -16,4 +16,10 @@ func CalcMd5(file multipart.File) (string, error) {
 	}
 
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
+}
+
+func CalcMd5Str(value string) string {
+	h := md5.New()
+
+	return fmt.Sprintf("%x", h.Sum(nil))
 }

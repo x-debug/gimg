@@ -52,6 +52,7 @@ type Processor interface {
 	GetActionConf() *config.ActionConf
 	Destroy()
 	AddAction(action Action)
+	SetupActions(typ string)
 	LenOfAction() int
 	ActionOnlyNop() bool
 	ReadCached() (*os.File, func(), error)

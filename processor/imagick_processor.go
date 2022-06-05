@@ -180,3 +180,29 @@ func (p *ImagickProcessor) RoundCorner(rx, ry float64) error {
 	p.mw = mw
 	return err
 }
+
+func (p *ImagickProcessor) SetupActions(op string) {
+	if op == "resize" {
+		p.AddAction(NewAction(Resize))
+	} else if op == "thumbnail" {
+		p.AddAction(NewAction(Thumbnail))
+	} else if op == "flip" {
+		p.AddAction(NewAction(Flip))
+	} else if op == "rotate" {
+		p.AddAction(NewAction(Rotate))
+	} else if op == "lua" {
+		p.AddAction(NewAction(LUA))
+	} else if op == "gray" {
+		p.AddAction(NewAction(GRAY))
+	} else if op == "crop" {
+		p.AddAction(NewAction(CROP))
+	} else if op == "quality" {
+		p.AddAction(NewAction(QUALITY))
+	} else if op == "format" {
+		p.AddAction(NewAction(FORMAT))
+	} else if op == "round" {
+		p.AddAction(NewAction(ROUND))
+	} else {
+		p.AddAction(NewAction(Nop))
+	}
+}
