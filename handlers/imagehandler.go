@@ -10,14 +10,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GetHandler Get image
-func GetHandler(ctx *pkg.Ctx) func(c *gin.Context) {
+func RemoteGetHandler(ctx *pkg.Ctx) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		hash := c.Param("hash")
-		op := c.DefaultQuery("op", "")
 		remote := c.DefaultQuery("remote", "")
-		ctx.Logger.Info("Raw query ", logger.String("Query", c.Request.URL.RawQuery), logger.String("Op", op))
 
+		var hash string
 		//Client set file hash or set remote file url, IF set the remote file url,
 		//Engine will download the image file into savepath before process the image file
 		if remote != "" {
@@ -29,89 +26,110 @@ func GetHandler(ctx *pkg.Ctx) func(c *gin.Context) {
 				pkg.Fail(c, fmt.Sprintf("download file error, reason of error: %s", err.Error()))
 				return
 			}
-		}
 
-		processor := ctx.Engine.NewProcessor(ctx, ctx.Logger, ctx.Conf, hash).SetParam(c.Request.URL.RawQuery)
-		processor.SetupActions(op)
-		defer processor.Destroy()
-
-		//Hit high cache? the cache save image with some parameters
-		imageBlob, err := ctx.Cache.Get(processor.ActionFinger())
-		if err != nil {
-			if cache.CacheMiss != err {
-				ctx.Logger.Info("Cache brocker get error ", logger.Error(err))
-				pkg.Fail(c, fmt.Sprintf("Cache brocker configuare error or shutdown?, reason of error: %s", err.Error()))
-				return
-			}
-			ctx.Logger.Info("Cache pass")
+			handleImage(ctx, c, hash)
 		} else {
-			_, err = c.Writer.Write(imageBlob)
-			if err != nil {
-				pkg.Fail(c, fmt.Sprintf("Write image blob to http stream, reason of error: %s", err.Error()))
-			} else {
-				ctx.Logger.Info("Image cache hit", logger.String("CacheKey", processor.ActionFinger()))
-			}
+
+		}
+	}
+}
+
+func handleImage(ctx *pkg.Ctx, c *gin.Context, hash string) {
+	if hash == "" {
+		hash = c.Param("hash")
+	}
+	op := c.DefaultQuery("op", "")
+	ctx.Logger.Info("Raw query ", logger.String("Query", c.Request.URL.RawQuery), logger.String("Op", op))
+
+	processor := ctx.Engine.NewProcessor(ctx, ctx.Logger, ctx.Conf, hash).SetParam(c.Request.URL.RawQuery)
+	processor.SetupActions(op)
+	defer processor.Destroy()
+
+	//Hit high cache? the cache save image with some parameters
+	imageBlob, err := ctx.Cache.Get(processor.ActionFinger())
+	if err != nil {
+		if cache.CacheMiss != err {
+			ctx.Logger.Info("Cache brocker get error ", logger.Error(err))
+			pkg.Fail(c, fmt.Sprintf("Cache brocker configuare error or shutdown?, reason of error: %s", err.Error()))
 			return
 		}
-
-		//Hit file cache? the cache cost some io performance
-		rFile, closef, err := processor.ReadCached()
-		defer func(f func()) {
-			if f != nil {
-				closef()
-			}
-		}(closef)
-		if err == nil {
-			ctx.Logger.Info("Cached file hit, read from cache ", logger.String("Filename", rFile.Name()))
-			ctx.RenderFile(c, processor, rFile)
-			return
-		}
-
-		//Read origin image, processor will cache these result for performance after processed
-		rFile, closef, err = processor.Read()
-		defer func(f func()) {
-			if f != nil {
-				closef()
-			}
-		}(closef)
+		ctx.Logger.Info("Cache pass")
+	} else {
+		_, err = c.Writer.Write(imageBlob)
 		if err != nil {
-			pkg.Fail(c, fmt.Sprintf("Read original image file error, reason of error: %s", err.Error()))
-			return
+			pkg.Fail(c, fmt.Sprintf("Write image blob to http stream, reason of error: %s", err.Error()))
+		} else {
+			ctx.Logger.Info("Image cache hit", logger.String("CacheKey", processor.ActionFinger()))
 		}
+		return
+	}
 
-		if processor.ActionOnlyNop() {
-			ctx.RenderFile(c, processor, rFile)
-			return
+	//Hit file cache? the cache cost some io performance
+	rFile, closef, err := processor.ReadCached()
+	defer func(f func()) {
+		if f != nil {
+			closef()
 		}
+	}(closef)
+	if err == nil {
+		ctx.Logger.Info("Cached file hit, read from cache ", logger.String("Filename", rFile.Name()))
+		ctx.RenderFile(c, processor, rFile)
+		return
+	}
 
-		ctx.Logger.Info("Processor fit image ", logger.String("FileName", rFile.Name()))
-		err = processor.Fit(rFile)
-		if err != nil {
-			pkg.Fail(c, fmt.Sprintf("Fit image file error, reason of error: %s", err.Error()))
-			return
+	//Read origin image, processor will cache these result for performance after processed
+	rFile, closef, err = processor.Read()
+	defer func(f func()) {
+		if f != nil {
+			closef()
 		}
+	}(closef)
+	if err != nil {
+		pkg.Fail(c, fmt.Sprintf("Read original image file error, reason of error: %s", err.Error()))
+		ctx.Logger.Error("Read original image file error", logger.Error(err))
+		return
+	}
 
-		//Write file object into disk, and write back the stream to body of response
-		//Now, the image of processed MUST write into the files, BUT they can communicate through memory stream
-		//TODO communicate through memory stream
-		wfile, _ := os.CreateTemp("/tmp", "")
-		defer wfile.Close()
+	if processor.ActionOnlyNop() {
+		ctx.RenderFile(c, processor, rFile)
+		return
+	}
 
-		err = processor.WriteToFile(wfile)
-		if err != nil {
-			ctx.Logger.Error("Write Image To File", logger.Error(err))
-			pkg.Fail(c, "Copy file error")
-			return
-		}
+	ctx.Logger.Info("Processor fit image ", logger.String("FileName", rFile.Name()))
+	err = processor.Fit(rFile)
+	if err != nil {
+		pkg.Fail(c, fmt.Sprintf("Fit image file error, reason of error: %s", err.Error()))
+		return
+	}
 
-		filename := ctx.File(processor.ActionFinger())
-		err = os.Rename(wfile.Name(), filename)
-		if err != nil {
-			pkg.Fail(c, "Rename file error")
-			return
-		}
+	//Write file object into disk, and write back the stream to body of response
+	//Now, the image of processed MUST write into the files, BUT they can communicate through memory stream
+	//TODO communicate through memory stream
+	wfile, _ := os.CreateTemp("/tmp", "")
+	defer wfile.Close()
 
-		ctx.RenderFile(c, processor, wfile)
+	err = processor.WriteToFile(wfile)
+	if err != nil {
+		ctx.Logger.Error("Write Image To File", logger.Error(err))
+		pkg.Fail(c, "Copy file error")
+		return
+	}
+
+	filename := ctx.File(processor.ActionFinger())
+	err = os.Rename(wfile.Name(), filename)
+	if err != nil {
+		pkg.Fail(c, "Rename file error")
+		ctx.Logger.Error("Rename file error", logger.String("OriginalFile", wfile.Name()), logger.String("NewFile", filename))
+		return
+	}
+
+	ctx.RenderFile(c, processor, wfile)
+}
+
+// GetHandler Get image
+func GetHandler(ctx *pkg.Ctx) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		handleImage(ctx, c, "")
 	}
 }
 

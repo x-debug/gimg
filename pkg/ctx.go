@@ -34,6 +34,7 @@ func (fc *Ctx) RenderFile(c *gin.Context, finger processor.HttpFinger, file *os.
 	_, err := io.Copy(wBuffer, file)
 	if err != nil {
 		Fail(c, "Copy buffer error")
+		fc.Logger.Error("Copy buffer", lg.Error(err))
 		return
 	}
 

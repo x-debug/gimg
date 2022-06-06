@@ -88,6 +88,7 @@ func main() {
 	if conf.Auth.Close {
 		router.POST("/upload", handlers.UploadHandler(ctx))
 		router.GET("/:hash", handlers.GetHandler(ctx))
+		router.GET("", handlers.RemoteGetHandler(ctx))
 	} else {
 		var group_router *gin.RouterGroup
 
@@ -99,6 +100,7 @@ func main() {
 		}
 		group_router.POST("/upload", handlers.UploadHandler(ctx))
 		group_router.GET("/:hash", handlers.GetHandler(ctx))
+		group_router.GET("", handlers.RemoteGetHandler(ctx))
 	}
 
 	logger.Info("Http listen ", lg.Int("Port", conf.Port))

@@ -2,6 +2,7 @@ package processor
 
 import (
 	"bytes"
+	"crypto/md5"
 	"fmt"
 	"gimg/config"
 	"gimg/fs"
@@ -12,6 +13,9 @@ import (
 
 	"gopkg.in/gographics/imagick.v3/imagick"
 )
+
+const HTTP_SCHEMA = "http://"
+const HTTPS_SCHEMA = "https://"
 
 type ImagickProcessor struct {
 	mw         *imagick.MagickWand
@@ -85,9 +89,18 @@ func (p *ImagickProcessor) Destroy() {
 }
 
 func (p *ImagickProcessor) ActionFinger() string {
+	h := md5.New()
 	joinParams := make([]string, 0)
 	for _, param := range p.params {
-		joinParams = append(joinParams, param.Key+param.Value)
+		//File system path can't contain the special char, so Hash(value) if query param is url
+		if strings.Contains(param.Value, HTTP_SCHEMA) || strings.Contains(param.Value, HTTPS_SCHEMA) {
+			h.Reset()
+			h.Write([]byte(param.Value))
+			hash := fmt.Sprintf("%x", h.Sum(nil))
+			joinParams = append(joinParams, param.Key+hash)
+		} else {
+			joinParams = append(joinParams, param.Key+param.Value)
+		}
 	}
 	newHash := fmt.Sprintf("%s_%s", p.fileHash, strings.Join(joinParams, "_"))
 	return newHash
