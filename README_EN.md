@@ -11,6 +11,8 @@ It provides a lot of object storage backends (localfs/fastdfs...), and cache hot
 
 We can put it behind an HTTP proxy server, such as Nginx or Varnish. You can specify the image path and it will grab it.
 
+**This is just a toy project, don't use it in a production environment**
+
 ### Setup
 ##### Source installation
 ```shell
@@ -85,3 +87,5 @@ Doing
 
 ### Performance Testing
 Doing
+
+**If you like or are using this project start your solution, please give it a star⭐. Thanks!**
