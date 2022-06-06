@@ -20,6 +20,6 @@ func CalcMd5File(file multipart.File) (string, error) {
 
 func CalcMd5Str(value string) string {
 	h := md5.New()
-
+	h.Write([]byte(value))
 	return fmt.Sprintf("%x", h.Sum(nil))
 }
