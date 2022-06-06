@@ -1,4 +1,9 @@
-![Gimg](./resources/logo-192x192.png)
+<img align="right" width="150px" src="./resources/logo-192x192.png">
+
+# Gimg
+[English](readme_en.md) | 简体中文
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **Golang构建的轻量级图片处理服务**
 
@@ -25,23 +30,55 @@ docker pull nbboy/gimg:v1.5.1
 docker run -d -p 8888:8888 nbboy/gimg:v1.5.1
 ```
 
+##### 上传测试
+安装完成后,打开http://YouDomain:8888/demo 可以上传测试的文件
+
 ### 功能
 - 图片缩放
+```
+http://YouDomain:8888/图片Hash?op=resize&w=100&h=100
+```
 - 图片缩略图
+```
+http://YouDomain:8888/图片Hash?op=thumbnail&w=100&h=100
+```
 - 图片旋转
+```
+http://YouDomain:8888/图片Hash?op=rotate&deg=30
+```
 - 图片水印
 - 图片裁剪
+```
+http://YouDomain:8888/图片Hash?op=crop&x=30&y=60&w=300&h=300
+```
 - 图片灰度化
+```
+http://YouDomain:8888/图片Hash?op=grayscale
+```
 - 图片圆角处理
+```
+http://YouDomain:8888/图片Hash?op=round&rx=30&ry=30
+```
 - 图片压缩处理
+```
+http://YouDomain:8888/图片Hash?op=quality&q=30
+```
 - 图片格式处理
+```
+http://YouDomain:8888/图片Hash?op=format&f=png
+```
 - 自定义LUA脚本处理
+```
+http://YouDomain:8888/图片Hash?op=lua&f=demo
+```
 - 图片回源处理
-
+```
+http://YouDomain:8888/?remote=https://alifei05.cfp.cn/creative/vcg/veer/1600water/veer-140775274.jpg&op=rotate&deg=30
+```
 ### 架构设计
 进行中
 
-### 本地目录存储设计
+### 存储目录设计
 进行中
 
 ### 缓存设计
