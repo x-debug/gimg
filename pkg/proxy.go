@@ -29,11 +29,10 @@ func (req *Request) HashVal() string {
 //NewRequest build request
 func newRequest(orignRequest *http.Request, baseUri string) *Request {
 	urlQuery := orignRequest.URL.Query()
-	hasRemote := urlQuery.Has("remote")
-	if !hasRemote {
+	remoteUrl := urlQuery.Get("remote")
+	if remoteUrl == "" {
 		return nil
 	}
-	remoteUrl := urlQuery.Get("remote")
 	if !strings.Contains(remoteUrl, HTTP_SCHEMA) {
 		if !strings.Contains(remoteUrl, HTTPS_SCHEMA) {
 			remoteUrl = baseUri + remoteUrl
