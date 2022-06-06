@@ -20,9 +20,9 @@ cd gimg && make build
 
 ##### Docker镜像安装
 ```shell
-docker pull nbboy/gimg:v1.5
+docker pull nbboy/gimg:v1.5.1
 
-docker run -d -p 8888:8888 nbboy/gimg:v1.5
+docker run -d -p 8888:8888 nbboy/gimg:v1.5.1
 ```
 
 ### 功能
