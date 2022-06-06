@@ -39,11 +39,13 @@ docker run -d -p 8888:8888 nbboy/gimg:v1.5.1
 - Process image with remote url
 
 ### Architecture design
+Doing
 
-### Some optimizations
+### Local storage design
+Doing
 
-##### Local storage design
+### Cache design
+Doing
 
-##### Cache design
-
-##### Performance Testing
+### Performance Testing
+Doing
