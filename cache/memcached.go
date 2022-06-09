@@ -1,9 +1,10 @@
 package cache
 
 import (
-	"gimg/config"
-	"gimg/logger"
 	"strconv"
+
+	"github.com/x-debug/gimg/config"
+	"github.com/x-debug/gimg/logger"
 
 	"github.com/bradfitz/gomemcache/memcache"
 )

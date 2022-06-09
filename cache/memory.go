@@ -1,9 +1,10 @@
 package cache
 
 import (
-	"gimg/config"
-	lg "gimg/logger"
 	"time"
+
+	"github.com/x-debug/gimg/config"
+	lg "github.com/x-debug/gimg/logger"
 
 	"github.com/allegro/bigcache/v3"
 )

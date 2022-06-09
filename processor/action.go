@@ -2,7 +2,8 @@ package processor
 
 import (
 	"errors"
-	"gimg/logger"
+
+	"github.com/x-debug/gimg/logger"
 
 	lua "github.com/yuin/gopher-lua"
 	luar "layeh.com/gopher-luar"

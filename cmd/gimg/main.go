@@ -3,12 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"gimg/cache"
-	"gimg/config"
-	"gimg/handlers"
-	lg "gimg/logger"
-	"gimg/pkg"
-	"gimg/processor"
 	"log"
 	"net/http"
 	"os"
@@ -16,6 +10,13 @@ import (
 	"strconv"
 	"syscall"
 	"time"
+
+	"github.com/x-debug/gimg/cache"
+	"github.com/x-debug/gimg/config"
+	"github.com/x-debug/gimg/handlers"
+	lg "github.com/x-debug/gimg/logger"
+	"github.com/x-debug/gimg/pkg"
+	"github.com/x-debug/gimg/processor"
 
 	"github.com/gin-gonic/gin"
 )
