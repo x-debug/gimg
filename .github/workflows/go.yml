@@ -21,6 +21,12 @@ jobs:
     - name: Install Deps
       run: ./install_deps.sh
 
+    - name: Lint
+      run: |
+        go vet -stdmethods=false $(go list ./...)
+        go install mvdan.cc/gofumpt@latest
+        test -z "$(gofumpt -l -extra .)" || echo "Please run 'gofumpt -l -w -extra .'"
+
     - name: Run coverage
       run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
 
