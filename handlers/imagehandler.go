@@ -19,7 +19,7 @@ func RemoteGetHandler(ctx *pkg.Ctx) func(c *gin.Context) {
 		//Engine will download the image file into savepath before process the image file
 		if remote != "" {
 			ctx.Logger.Info("Fetch remote file", logger.String("RemoteUrl", remote))
-			proxy := pkg.NewProxy(ctx.Conf.Engine.SavePath, ctx.Conf.Proxy, ctx.Logger)
+			proxy := pkg.NewProxy(ctx, ctx.Conf.Proxy, ctx.Logger)
 			req := proxy.CloneRequest(c.Request)
 			hash = req.HashVal()
 			if err := proxy.Do(req, hash); err != nil {
