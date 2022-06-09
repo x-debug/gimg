@@ -65,7 +65,18 @@ func (fc *Ctx) GetStoragePath(fingerprint string) (string, error) {
 		if err := MakeDirectoryIfNotExists(fc.Conf.Engine.CachePath); err != nil {
 			return "", err
 		}
-		return fmt.Sprintf("%s/%s", fc.Conf.Engine.CachePath, fingerprint), nil
+
+		l1Pair := StrHash(fingerprint)
+		l2Pair := StrHash(fingerprint[3:])
+		pathL1 := fmt.Sprintf("%s/%d", fc.Conf.Engine.CachePath, l1Pair)
+		if err := MakeDirectoryIfNotExists(pathL1); err != nil {
+			return "", err
+		}
+		pathL2 := fmt.Sprintf("%s/%d/%d", fc.Conf.Engine.CachePath, l1Pair, l2Pair)
+		if err := MakeDirectoryIfNotExists(pathL2); err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("%s/%d/%d/%s", fc.Conf.Engine.CachePath, l1Pair, l2Pair, fingerprint), nil
 	} else {
 		if err := MakeDirectoryIfNotExists(fc.Conf.Engine.SavePath); err != nil {
 			return "", err
