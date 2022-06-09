@@ -21,13 +21,11 @@ jobs:
     - name: Install Deps
       run: ./install_deps.sh
 
-    - name: Upload coverage reports to Codecov
-      run: |
-        # Replace `linux` below with the appropriate OS
-        # Options are `alpine`, `linux`, `macos`, `windows`
-        curl -Os https://uploader.codecov.io/latest/linux/codecov
-        chmod +x codecov
-        ./codecov -t ${CODECOV_TOKEN}
+    - name: Run coverage
+      run: go test -race -coverprofile=coverage.txt -covermode=atomic
+
+    - name: Upload coverage to Codecov
+      run: bash <(curl -s https://codecov.io/bash)
 
     - name: Build
       run: go build -v ./...
