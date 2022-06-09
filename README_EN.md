@@ -1,7 +1,7 @@
 <img align="right" width="150px" src="./resources/logo-192x192.png">
 
 # Gimg
-[中文](readme.md) | English 
+[中文](README.md) | English 
 
 **Lightweight image processing service built by Golang**
 
@@ -25,9 +25,9 @@ cd gimg && make build
 
 ##### Docker image installation
 ```shell
-docker pull nbboy/gimg:v1.5.1
+docker pull nbboy/gimg:v1.5.2
 
-docker run -d -p 8888:8888 nbboy/gimg:v1.5.1
+docker run -d -p 8888:8888 nbboy/gimg:v1.5.2
 ```
 
 ##### Upload and testing

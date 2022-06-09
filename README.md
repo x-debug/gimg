@@ -1,7 +1,7 @@
 <img align="right" width="150px" src="./resources/logo-192x192.png">
 
 # Gimg
-[English](readme_en.md) | 简体中文
+[English](README_EN.md) | 简体中文
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -27,9 +27,9 @@ cd gimg && make build
 
 ##### Docker镜像安装
 ```shell
-docker pull nbboy/gimg:v1.5.1
+docker pull nbboy/gimg:v1.5.2
 
-docker run -d -p 8888:8888 nbboy/gimg:v1.5.1
+docker run -d -p 8888:8888 nbboy/gimg:v1.5.2
 ```
 
 ##### 上传测试
