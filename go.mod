@@ -1,4 +1,4 @@
-module gimg
+module github.com/x-debug/gimg
 
 go 1.16
 

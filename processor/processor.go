@@ -1,10 +1,11 @@
 package processor
 
 import (
-	"gimg/config"
-	"gimg/fs"
-	"gimg/logger"
 	"os"
+
+	"github.com/x-debug/gimg/config"
+	"github.com/x-debug/gimg/fs"
+	"github.com/x-debug/gimg/logger"
 )
 
 const Imagick = iota
