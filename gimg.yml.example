@@ -3,7 +3,7 @@ port: 8888
 engine:
   name: imagick
   save_path: ./images
-  cache_path: ./images/cache
+  cache_path: ./images
 lua:
   load_path: ./scripts
 auth:
