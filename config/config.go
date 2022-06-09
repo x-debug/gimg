@@ -1,7 +1,7 @@
 package config
 
 import (
-	"gimg/logger"
+	"github.com/x-debug/gimg/logger"
 
 	"github.com/spf13/viper"
 )

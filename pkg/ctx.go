@@ -3,15 +3,16 @@ package pkg
 import (
 	"bytes"
 	"fmt"
-	"gimg/cache"
-	"gimg/config"
-	"gimg/logger"
-	lg "gimg/logger"
-	"gimg/processor"
 	"io"
 	"mime/multipart"
 	"os"
 	"strings"
+
+	"github.com/x-debug/gimg/cache"
+	"github.com/x-debug/gimg/config"
+	"github.com/x-debug/gimg/logger"
+	lg "github.com/x-debug/gimg/logger"
+	"github.com/x-debug/gimg/processor"
 
 	"github.com/gin-gonic/gin"
 )

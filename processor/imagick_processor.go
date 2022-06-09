@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"crypto/md5"
 	"fmt"
-	"gimg/config"
-	"gimg/fs"
-	"gimg/logger"
 	"io"
 	"os"
 	"strings"
+
+	"github.com/x-debug/gimg/config"
+	"github.com/x-debug/gimg/fs"
+	"github.com/x-debug/gimg/logger"
 
 	"gopkg.in/gographics/imagick.v3/imagick"
 )

@@ -2,14 +2,15 @@ package pkg
 
 import (
 	"context"
-	"gimg/config"
-	lg "gimg/logger"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/x-debug/gimg/config"
+	lg "github.com/x-debug/gimg/logger"
 )
 
 const HTTP_SCHEMA = "http://"

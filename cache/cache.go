@@ -2,8 +2,9 @@ package cache
 
 import (
 	"errors"
-	"gimg/config"
-	"gimg/logger"
+
+	"github.com/x-debug/gimg/config"
+	"github.com/x-debug/gimg/logger"
 )
 
 var CacheMiss = errors.New("Cache miss")

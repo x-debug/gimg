@@ -2,10 +2,11 @@ package handlers
 
 import (
 	"fmt"
-	"gimg/cache"
-	"gimg/logger"
-	"gimg/pkg"
 	"os"
+
+	"github.com/x-debug/gimg/cache"
+	"github.com/x-debug/gimg/logger"
+	"github.com/x-debug/gimg/pkg"
 
 	"github.com/gin-gonic/gin"
 )
