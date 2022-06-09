@@ -61,11 +61,27 @@ func (fc *Ctx) RenderFile(c *gin.Context, finger processor.HttpFinger, file *os.
 
 //GetStoragePath return IF fingerprint is original image,set L1(3Byte) and L2(3Byte) for hierarchical directory
 func (fc *Ctx) GetStoragePath(fingerprint string) (string, error) {
+	originalDir := GetOrignalFileName(fingerprint)
 	if strings.Contains(fingerprint, ImageParamSpliter) {
 		if err := MakeDirectoryIfNotExists(fc.Conf.Engine.CachePath); err != nil {
 			return "", err
 		}
-		return fmt.Sprintf("%s/%s", fc.Conf.Engine.CachePath, fingerprint), nil
+
+		l1Pair := StrHash(fingerprint)
+		l2Pair := StrHash(fingerprint[3:])
+		pathL1 := fmt.Sprintf("%s/%d", fc.Conf.Engine.CachePath, l1Pair)
+		if err := MakeDirectoryIfNotExists(pathL1); err != nil {
+			return "", err
+		}
+		pathL2 := fmt.Sprintf("%s/%d/%d", fc.Conf.Engine.CachePath, l1Pair, l2Pair)
+		if err := MakeDirectoryIfNotExists(pathL2); err != nil {
+			return "", err
+		}
+		fileDir := fmt.Sprintf("%s/%d/%d/%s", fc.Conf.Engine.CachePath, l1Pair, l2Pair, originalDir)
+		if err := MakeDirectoryIfNotExists(fileDir); err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("%s/%d/%d/%s/%s", fc.Conf.Engine.CachePath, l1Pair, l2Pair, originalDir, fingerprint), nil
 	} else {
 		if err := MakeDirectoryIfNotExists(fc.Conf.Engine.SavePath); err != nil {
 			return "", err
@@ -81,7 +97,11 @@ func (fc *Ctx) GetStoragePath(fingerprint string) (string, error) {
 		if err := MakeDirectoryIfNotExists(pathL2); err != nil {
 			return "", err
 		}
-		return fmt.Sprintf("%s/%d/%d/%s", fc.Conf.Engine.SavePath, l1Pair, l2Pair, fingerprint), nil
+		fileDir := fmt.Sprintf("%s/%d/%d/%s", fc.Conf.Engine.SavePath, l1Pair, l2Pair, originalDir)
+		if err := MakeDirectoryIfNotExists(fileDir); err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("%s/%d/%d/%s/%s", fc.Conf.Engine.SavePath, l1Pair, l2Pair, originalDir, fingerprint), nil
 	}
 }
 
