@@ -11,9 +11,12 @@ import (
 	"io"
 	"mime/multipart"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
+
+const ImageParamSpliter = "_"
 
 type Ctx struct {
 	Conf   *config.Config
@@ -56,8 +59,37 @@ func (fc *Ctx) RenderFile(c *gin.Context, finger processor.HttpFinger, file *os.
 	}
 }
 
+//GetStoragePath return IF fingerprint is original image,set L1(3Byte) and L2(3Byte) for hierarchical directory
+func (fc *Ctx) GetStoragePath(fingerprint string) (string, error) {
+	if strings.Contains(fingerprint, ImageParamSpliter) {
+		if err := MakeDirectoryIfNotExists(fc.Conf.Engine.CachePath); err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("%s/%s", fc.Conf.Engine.CachePath, fingerprint), nil
+	} else {
+		if err := MakeDirectoryIfNotExists(fc.Conf.Engine.SavePath); err != nil {
+			return "", err
+		}
+
+		l1Pair := StrHash(fingerprint)
+		l2Pair := StrHash(fingerprint[3:])
+		pathL1 := fmt.Sprintf("%s/%d", fc.Conf.Engine.SavePath, l1Pair)
+		if err := MakeDirectoryIfNotExists(pathL1); err != nil {
+			return "", err
+		}
+		pathL2 := fmt.Sprintf("%s/%d/%d", fc.Conf.Engine.SavePath, l1Pair, l2Pair)
+		if err := MakeDirectoryIfNotExists(pathL2); err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("%s/%d/%d/%s", fc.Conf.Engine.SavePath, l1Pair, l2Pair, fingerprint), nil
+	}
+}
+
 func (fc *Ctx) ReadFile(fingerprint string) (*os.File, func(), error) {
-	filename := fmt.Sprintf("%s/%s", fc.Conf.Engine.SavePath, fingerprint)
+	filename, err := fc.GetStoragePath(fingerprint)
+	if err != nil {
+		return nil, nil, err
+	}
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, nil, err
@@ -69,12 +101,19 @@ func (fc *Ctx) ReadFile(fingerprint string) (*os.File, func(), error) {
 }
 
 func (fc *Ctx) File(filename string) string {
-	return fmt.Sprintf("%s/%s", fc.Conf.Engine.SavePath, filename)
+	path, err := fc.GetStoragePath(filename)
+	if err != nil {
+		return ""
+	}
+	return path
 }
 
 //SaveFile save file to path of fingerprint
 func (fc *Ctx) SaveFile(fingerprint string, file multipart.File) error {
-	filename := fmt.Sprintf("%s/%s", fc.Conf.Engine.SavePath, fingerprint)
+	filename, err := fc.GetStoragePath(fingerprint)
+	if err != nil {
+		return err
+	}
 	dstFile, err := os.Create(filename)
 	if err != nil {
 		return err

@@ -12,8 +12,9 @@ type ProxyConf struct {
 }
 
 type EngineConf struct {
-	SavePath string `mapstructure:"save_path"`
-	Name     string
+	SavePath  string `mapstructure:"save_path"`
+	CachePath string `mapstructure:"cache_path"`
+	Name      string
 }
 
 type ActionConf struct {
@@ -54,8 +55,9 @@ func defaultConfig() *Config {
 		Debug: false,
 		Port:  8080,
 		Engine: &EngineConf{
-			Name:     "imagick",
-			SavePath: "./images",
+			Name:      "imagick",
+			SavePath:  "./images",
+			CachePath: "./images",
 		},
 		Action: &ActionConf{
 			LoadScriptPath: "./scripts",
@@ -74,6 +76,7 @@ func Load(filename string) (*Config, error) {
 	viper.SetDefault("debug", defaultConfig.Debug)
 	viper.SetDefault("port", defaultConfig.Port)
 	viper.SetDefault("engine.save_path", defaultConfig.Engine.SavePath)
+	viper.SetDefault("engine.cache_path", defaultConfig.Engine.CachePath)
 	viper.SetDefault("engine.name", defaultConfig.Engine.Name)
 	viper.SetDefault("logger", defaultConfig.Logger)
 	viper.SetDefault("action.load_path", defaultConfig.Action.LoadScriptPath)

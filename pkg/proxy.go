@@ -52,6 +52,7 @@ type FileProxy struct {
 	cachePath string
 	timeout   time.Duration
 	logger    lg.Logger
+	ctx       *Ctx
 }
 
 //Default setting
@@ -59,13 +60,13 @@ const clientMaxIdleConns = 30
 const IdleConnTimeout = 60
 
 //NewProxy build remote proxy
-func NewProxy(cacheSavePath string, conf *config.ProxyConf, logger lg.Logger) *FileProxy {
+func NewProxy(ctx *Ctx, conf *config.ProxyConf, logger lg.Logger) *FileProxy {
 	tr := &http.Transport{
 		MaxIdleConns:    clientMaxIdleConns,
 		IdleConnTimeout: 60 * time.Second,
 	}
 
-	proxy := &FileProxy{client: &http.Client{Transport: tr}, basePath: conf.BaseRemotePath, cachePath: cacheSavePath, logger: logger, timeout: time.Duration(conf.RequestTimeout) * time.Second}
+	proxy := &FileProxy{ctx: ctx, client: &http.Client{Transport: tr}, basePath: conf.BaseRemotePath, logger: logger, timeout: time.Duration(conf.RequestTimeout) * time.Second}
 	return proxy
 }
 
@@ -92,7 +93,10 @@ func (fp *FileProxy) Do(req *Request, fileHash string) error {
 		fp.logger.Error("Proxy request remote url error", lg.String("URL", req.Url.String()), lg.Error(err))
 		return err
 	}
-	fileName := fp.cachePath + "/" + fileHash
+	fileName, err := fp.ctx.GetStoragePath(fileHash)
+	if err != nil {
+		return nil
+	}
 
 	//func return IF the image file already exists,so the expired data maybe cached, but caller can delete the old images manually
 	if _, err := os.Stat(fileName); err == nil {
