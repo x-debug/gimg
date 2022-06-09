@@ -7,6 +7,7 @@ import (
 	"mime/multipart"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func CalcMd5File(file multipart.File) (string, error) {
@@ -40,4 +41,12 @@ func MakeDirectoryIfNotExists(path string) error {
 		return os.Mkdir(path, os.ModeDir|0755)
 	}
 	return nil
+}
+
+func GetOrignalFileName(filename string) string {
+	pairs := strings.Split(filename, "_")
+	if len(pairs) > 0 {
+		return pairs[0]
+	}
+	return ""
 }
