@@ -19,3 +19,4 @@ images/
 gimg
 *.swp
 gimg.yml
+coverage.txt
