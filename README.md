@@ -1,3 +1,5 @@
+
+
 <img align="right" width="150px" src="./resources/logo-192x192.png">
 
 # Gimg
@@ -55,7 +57,7 @@ http://YouDomain:8888/图片Hash?op=crop&x=30&y=60&w=300&h=300
 ```
 - 图片灰度化
 ```
-http://YouDomain:8888/图片Hash?op=grayscale
+http://YouDomain:8888/图片Hash?op=gray
 ```
 - 图片圆角处理
 ```
